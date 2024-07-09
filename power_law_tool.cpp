@@ -45,13 +45,15 @@ std::vector<double> generate_power_law_point_process(double alpha, double tau_0,
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(0.0, 1.0);
     
+
     std::queue<double> samplesQueue; // 変更: vectorからqueueに変更
 
     for (int i = 0; i < sample_amount; ++i) {
         double u = dis(gen);
+    
         // べき分布の逆関数を使用し、tau_0をスケールファクターとして使用
-        //inter_occurence_timeこそがsamplesです。
-        samplesQueue.push(tau_0 * std::pow(u, -1.0 / alpha)); // 変更: queueに値を追加
+        //inter_occurence_timeこそがsamplesQueueです。
+        samplesQueue.push(tau_0 * std::pow(u, -1.0 / alpha)); 
     }
     
 

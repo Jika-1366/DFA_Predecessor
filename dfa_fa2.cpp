@@ -9,14 +9,31 @@
 
 using namespace std;
 
-int main() {
+int main(int argc, char* argv[]) {
+    // デフォルト値の設定
     string output_file = "alpha_slope.csv";
     string detailed_output_file = "alpha_all_slopes.csv";
     double tau_0 = 1.0;
-    int sample_amount = pow(10,7);
-    int number_i = 30;
+    int sample_amount = pow(10,6);
+    int number_i = 10;
     int t_first_l = 16;
+
+    // コマンドライン引数の解析
+    for (int i = 1; i < argc; i += 2) {
+        string arg = argv[i];
+        if (i + 1 < argc) {
+            if (arg == "--output") output_file = argv[i+1];
+            else if (arg == "--detailed_output") detailed_output_file = argv[i+1];
+            else if (arg == "--tau_0") tau_0 = stod(argv[i+1]);
+            else if (arg == "--sample_amount") sample_amount = stoi(argv[i+1]);
+            else if (arg == "--number_i") number_i = stoi(argv[i+1]);
+            else if (arg == "--t_first_l") t_first_l = stoi(argv[i+1]);
+        }
+    }
+
     cout << "Config values:" << endl;
+    cout << "output_file = " << output_file << endl;
+    cout << "detailed_output_file = " << detailed_output_file << endl;
     cout << "tau_0 = " << tau_0 << endl;
     cout << "sample_amount = " << sample_amount << endl;
     cout << "number_i = " << number_i << endl;
@@ -25,9 +42,7 @@ int main() {
     ofstream output(output_file);
     ofstream detailed_output(detailed_output_file);
     
-    // 詳細なCSVファイルのヘッダーを書き込む
-    detailed_output << "alpha,slope1,slope2,slope3,slope4,slope5,slope6,slope7,slope8,slope9,slope10" << endl;
-
+    
     for (double alpha = 0.1; alpha <= 3.5; alpha += 0.1) {
         vector<double> slopes;
 
@@ -35,7 +50,7 @@ int main() {
 
         for (int i = 0; i < number_i; ++i) {
             std::vector<double> walk = generate_power_law_point_process(alpha, tau_0, sample_amount);
-            double slope = dfa(walk, alpha = alpha, t_first_l);
+            double slope = dfa(walk, alpha, t_first_l);
             if (!std::isnan(slope)) {
                 slopes.push_back(slope);
                 detailed_output << "," << setprecision(15) << slope;

@@ -4,7 +4,10 @@ import matplotlib.pyplot as plt
 from scipy import stats
 
 # CSVファイルを読み込む
-data = pd.read_csv('alpha_all_slopes.csv')
+data = pd.read_csv('alpha_all_slopes.csv', header=None)
+
+# 列名を設定
+data.columns = ['alpha'] + [f'slope_{i}' for i in range(1, len(data.columns))]
 
 # 平均とエラーを計算する関数
 def calculate_mean_and_error(row):
@@ -55,3 +58,5 @@ plt.savefig('graph_alpha_slope_all.png')
 plt.close()
 
 print('グラフが graph_alpha_slope_all.png として保存されました。')
+
+print(slope)
