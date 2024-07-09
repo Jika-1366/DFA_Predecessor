@@ -17,6 +17,7 @@ int main(int argc, char* argv[]) {
     int sample_amount = pow(10,6);
     int number_i = 10;
     int t_first_l = 16;
+    int cap_rate = 10000;
 
     // コマンドライン引数の解析
     for (int i = 1; i < argc; i += 2) {
@@ -28,6 +29,7 @@ int main(int argc, char* argv[]) {
             else if (arg == "--sample_amount") sample_amount = stoi(argv[i+1]);
             else if (arg == "--number_i") number_i = stoi(argv[i+1]);
             else if (arg == "--t_first_l") t_first_l = stoi(argv[i+1]);
+            else if (arg == "--cap_rate") cap_rate = stoi(argv[i+1]);
         }
     }
 
@@ -38,11 +40,12 @@ int main(int argc, char* argv[]) {
     cout << "sample_amount = " << sample_amount << endl;
     cout << "number_i = " << number_i << endl;
     cout << "t_first_l = " << t_first_l << endl;
+    cout << "cap_rate = " << cap_rate << endl;
 
     ofstream output(output_file);
     ofstream detailed_output(detailed_output_file);
     
-    
+
     for (double alpha = 0.1; alpha <= 3.5; alpha += 0.1) {
         vector<double> slopes;
 

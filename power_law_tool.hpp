@@ -15,8 +15,8 @@ std::vector<double> generate_power_law_walk(double alpha, double tau_0 = 1.0, in
 
 std::vector<double> generate_power_law_point_process(double alpha,
                                                     double tau_0 = 1.0,
-                                                    int sample_amount = 100000
-                                                    
+                                                    int sample_amount = 100000,
+                                                    int cap_rate = 10000
                                                     );
 
 double dfa(std::vector<double> RW_list, double alpha = 0.0, int first_l = 4);
