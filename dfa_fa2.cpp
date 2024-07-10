@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
     int sample_amount = pow(10,6);
     int number_i = 10;
     int t_first_l = 16;
-    int cap_rate = 10000;
+    long long cap_rate = 10000;
 
     // コマンドライン引数の解析
     for (int i = 1; i < argc; i += 2) {
@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
             else if (arg == "--sample_amount") sample_amount = stoi(argv[i+1]);
             else if (arg == "--number_i") number_i = stoi(argv[i+1]);
             else if (arg == "--t_first_l") t_first_l = stoi(argv[i+1]);
-            else if (arg == "--cap_rate") cap_rate = stoi(argv[i+1]);
+            else if (arg == "--cap_rate") cap_rate = stoll(argv[i+1]);
         }
     }
 
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
         detailed_output << fixed << setprecision(1) << alpha;
 
         for (int i = 0; i < number_i; ++i) {
-            std::vector<double> walk = generate_power_law_point_process(alpha, tau_0, sample_amount);
+            std::vector<double> walk = generate_power_law_point_process(alpha, tau_0, sample_amount, cap_rate);
             double slope = dfa(walk, alpha, t_first_l);
             if (!std::isnan(slope)) {
                 slopes.push_back(slope);

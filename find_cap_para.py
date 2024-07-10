@@ -37,11 +37,11 @@ def run_analysis(tau_0, sample_amount, number_i, t_first_l, cap_rate):
 def main():
     # パラメータの範囲を定義
     tau_0_range = [0.1,0.3,0.5 ,1.0]
-    sample_amount_range = [10**5, 10**7]
+    sample_amount_range = [10**6]
     number_i_range = [5]
     t_first_l_range = [16]
-    cap_rate_range = [int(10**x) for x in [8,7, 6, 5.5, 5]]
-    
+    cap_rate_range = [int(10**x) for x in [18,16,14,12,10]]
+
     results = []
 
     for tau_0, sample_amount, number_i, t_first_l, cap_rate in product(tau_0_range, sample_amount_range, number_i_range, t_first_l_range, cap_rate_range):

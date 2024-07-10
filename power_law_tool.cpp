@@ -40,7 +40,7 @@ std::vector<double> generate_power_law_walk(double alpha, double tau_0, int samp
 }    
 
 
-std::vector<double> generate_power_law_point_process(double alpha, double tau_0, int sample_amount, int cap_rate) {
+std::vector<double> generate_power_law_point_process(double alpha, double tau_0, int sample_amount, long long cap_rate) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(0.0, 1.0);
@@ -192,7 +192,7 @@ vector<vector<double>> generate_segments_2(const vector<double>& data, int scale
 
 
 double dfa(vector<double> RW_list, double alpha, int first_l) {
-     // alphaを少数第1位で表示するために、snprintfを使用します。
+    // alphaを少数第1位で表示するために、snprintfを使用します。
     char buffer[20];
     snprintf(buffer, sizeof(buffer), "%.1f", alpha);
     string base_name = buffer;
