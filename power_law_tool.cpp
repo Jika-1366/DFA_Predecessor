@@ -25,7 +25,8 @@ std::vector<double> generate_power_law_walk(double alpha, double tau_0, int samp
     std::vector<double> samples(sample_amount);
     
     for (int i = 0; i < sample_amount; ++i) {
-        double u = dis(gen);
+        //double u = dis(gen);
+        double u = rand()/RAND_MAX;
         // べき分布の逆関数を使用し、tau_0をスケールファクターとして使用
         samples[i] = tau_0 * std::pow(u, -1.0 / alpha);
     }
@@ -44,17 +45,20 @@ std::vector<double> generate_power_law_point_process(double alpha, double tau_0,
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(0.0, 1.0);
-    
+    srand(time(NULL));
 
     std::queue<double> samplesQueue; // 変更: vectorからqueueに変更
 
     for (int i = 0; i < sample_amount; ++i) {
-        double u = dis(gen);
-    
+        //double u = dis(gen);
+        double u = ((double) rand())/((double) RAND_MAX);
         // べき分布の逆関数を使用し、tau_0をスケールファクターとして使用
         //inter_occurence_timeこそがsamplesQueueです。
         double value = tau_0 * std::pow(u, -1.0 / alpha);
-        samplesQueue.push(std::min(value, cap_rate * tau_0));
+        samplesQueue.push(value);
+        //cap_rateを使用するなら以下
+        //samplesQueue.push(std::min(value, cap_rate * tau_0));
+
     }
     
 
@@ -191,7 +195,7 @@ vector<vector<double>> generate_segments_2(const vector<double>& data, int scale
 
 
 
-double dfa(vector<double> RW_list, double alpha, int first_l) {
+double dfa(vector<double> RW_list, double alpha, int t_first_l, int t_last_l) {
     // alphaを少数第1位で表示するために、snprintfを使用します。
     char buffer[20];
     snprintf(buffer, sizeof(buffer), "%.1f", alpha);
@@ -199,7 +203,8 @@ double dfa(vector<double> RW_list, double alpha, int first_l) {
     
     //string input_path = base_name + ".csv";
     string output_path = "F/" + base_name + ".csv";
-    int last_l = pow(10, 5);
+    int first_l = t_first_l;
+    int last_l = t_last_l;
     int thres_rem_to_ignore = 1; //threshold remainder to ignore
 
     // Adjust data

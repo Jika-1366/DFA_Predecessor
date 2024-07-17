@@ -19,7 +19,7 @@ std::vector<double> generate_power_law_point_process(double alpha,
                                                     long long cap_rate = 10000
                                                     );
 
-double dfa(std::vector<double> RW_list, double alpha = 0.0, int first_l = 4);
+double dfa(std::vector<double> RW_list, double alpha = 0.0, int first_l = 4, int t_last_l= 10000);
 
 
 #endif

@@ -34,10 +34,12 @@ def run_analysis(tau_0, sample_amount, number_i, t_first_l, cap_rate):
         print(f"標準エラー出力:\n{e.stderr}")
         return f"Error: {e}"
 
+
+
 def main():
     # パラメータの範囲を定義
-    tau_0_range = [1.0, 3, 10, 50 ]
-    sample_amount_range = [10**4, 10**5]
+    tau_0_range = [0.001, 0.01, 0.1]
+    sample_amount_range = [10**5]
     
     number_i_range = [30]
     t_first_l_range = [16]
