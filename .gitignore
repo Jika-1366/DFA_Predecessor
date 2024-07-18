@@ -4,6 +4,6 @@
 # Ignore all PNG files
 *.png
 
-
+*.exe
 
 /F/
