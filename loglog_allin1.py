@@ -11,7 +11,7 @@ import glob
 
 # beki_walk_alpha_*.csvファイルを取得
 #csv_files = glob.glob("l_F_beki_walk_alpha_*.csv")
-csv_files = glob.glob("F/*.csv")
+csv_files = sorted(glob.glob("F/*.csv"))
 
 # FigureとAxesオブジェクトを作成
 fig, ax = plt.subplots(figsize=(10, 6))
@@ -25,10 +25,10 @@ markers = ['o', 's', '^', 'v', '<', '>', 'D']
 # ファイルごとに処理
 for i, csv_file in enumerate(csv_files):
     # "2."を含むファイルをスキップ
-    if "2." in csv_file and not "2.0" in csv_file and not "0.2" in csv_file:
+    if "2." in csv_file and not "2.0" in csv_file and not "0.2" in csv_file and not "1.2" in csv_file:
         continue
         # "2."を含むファイルをスキップ
-    if "3." in csv_file and not "0.3" in csv_file:
+    if "3." in csv_file and not "0.3" in csv_file and not "1.3" in csv_file:
         continue
     # CSVファイルを読み込む
     input_file = csv_file
