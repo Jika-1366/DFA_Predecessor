@@ -3,17 +3,17 @@ import csv
 from itertools import product
 import math
 
-cpp_program = "./dfa_fa2"
+cpp_program = "./dfa_fa3"
 python_path = "C:/Users/user/anaconda3/envs/openinterpreter/python.exe"
 python_script = "c:/cygwin64/home/user/akimotoken/Predecessor/graph_alpha_slope_all.py"
 
-def run_analysis(tau_0, sample_amount, number_i, t_first_l, cap_rate):
+def run_analysis(tau_0, sample_amount, number_i, t_first_l, t_last_l):
     args = [
         "--tau_0", str(tau_0),
         "--sample_amount", str(sample_amount),
         "--number_i", str(number_i),
         "--t_first_l", str(t_first_l),
-        "--cap_rate", str(cap_rate)
+        "--t_last_l", str(t_last_l)
     ]
 
     subprocess.run([cpp_program] + args, check=True)
@@ -38,34 +38,36 @@ def run_analysis(tau_0, sample_amount, number_i, t_first_l, cap_rate):
 
 def main():
     # パラメータの範囲を定義
-    tau_0_range = [0.001, 0.01, 0.1]
-    sample_amount_range = [10**5]
+    tau_0_range = [1]
+    sample_amount_range = [10**8]
     
-    number_i_range = [30]
-    t_first_l_range = [16]
-    cap_rate_range = [int(10**x) for x in [18]]
+    number_i_range = [15]
+    t_first_l_range = [16, 100, 1000, 10**4]
+    t_last_l_range = [10**4, 10**5, 10**6, 10**7]
+
 
     results = []
 
-    for tau_0, sample_amount, number_i, t_first_l, cap_rate in product(tau_0_range, sample_amount_range, number_i_range, t_first_l_range, cap_rate_range):
-        print(f"Running with parameters: tau_0={tau_0}, sample_amount={sample_amount}, number_i={number_i}, t_first_l={t_first_l}, cap_rate={cap_rate}")
-        
-        slope = run_analysis(tau_0, sample_amount, number_i, t_first_l, cap_rate)
-        
-        result = {
-            "tau_0": tau_0,
-            "sample_amount": sample_amount,
-            "number_i": number_i,
-            "t_first_l": t_first_l,
-            "cap_rate": cap_rate,
-            "slope": slope
-        }
-        results.append(result)
+    for tau_0, sample_amount, number_i, t_first_l, t_last_l in product(tau_0_range, sample_amount_range, number_i_range, t_first_l_range, t_last_l_range):
+        if t_first_l < t_last_l and sample_amount > t_last_l:  # t_first_lがt_last_lより小さいときだけ実行
+            print(f"Running with parameters: tau_0={tau_0}, sample_amount={sample_amount}, number_i={number_i}, t_first_l={t_first_l}, t_last_l={t_last_l}")
+            
+            slope = run_analysis(tau_0, sample_amount, number_i, t_first_l, t_last_l)
+            
+            result = {
+                "tau_0": tau_0,
+                "sample_amount": sample_amount,
+                "number_i": number_i,
+                "t_first_l": t_first_l,
+                "t_last_l": t_last_l,
+                "slope": slope
+            }
+            results.append(result)
 
     # 結果をCSVファイルに保存
     csv_filename = "dfa_results.csv"
     with open(csv_filename, 'w', newline='') as csvfile:
-        fieldnames = ["tau_0", "sample_amount", "number_i", "t_first_l", "cap_rate", "slope"]
+        fieldnames = ["tau_0", "sample_amount", "number_i", "t_first_l", "t_last_l"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for result in results:

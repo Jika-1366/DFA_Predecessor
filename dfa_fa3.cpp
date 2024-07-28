@@ -1,4 +1,5 @@
-//何度もdfaを回して、平均の傾きを取得する。
+//使用すべきlの範囲を調べるためのプログラム
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -18,7 +19,7 @@ int main(int argc, char* argv[]) {
     int sample_amount = pow(10,6);
     int number_i = 10;
     int t_first_l = 16;
-    long long cap_rate = 10000;
+    int t_last_l = 10000; // t_last_lを追加
 
     // コマンドライン引数の解析
     for (int i = 1; i < argc; i += 2) {
@@ -30,7 +31,7 @@ int main(int argc, char* argv[]) {
             else if (arg == "--sample_amount") sample_amount = stoi(argv[i+1]);
             else if (arg == "--number_i") number_i = stoi(argv[i+1]);
             else if (arg == "--t_first_l") t_first_l = stoi(argv[i+1]);
-            else if (arg == "--cap_rate") cap_rate = stoll(argv[i+1]);
+            else if (arg == "--t_last_l") t_last_l = stoi(argv[i+1]); // t_last_lの解析を追加
         }
     }
 
@@ -41,7 +42,7 @@ int main(int argc, char* argv[]) {
     cout << "sample_amount = " << sample_amount << endl;
     cout << "number_i = " << number_i << endl;
     cout << "t_first_l = " << t_first_l << endl;
-    cout << "cap_rate = " << cap_rate << endl;
+    cout << "t_last_l = " << t_last_l << endl; // t_last_lの表示を追加
 
     ofstream output(output_file);
     ofstream detailed_output(detailed_output_file);
@@ -53,8 +54,8 @@ int main(int argc, char* argv[]) {
         detailed_output << fixed << setprecision(1) << alpha;
 
         for (int i = 0; i < number_i; ++i) {
-            std::vector<double> walk = generate_power_law_point_process(alpha, tau_0, sample_amount, cap_rate);
-            double slope = dfa(walk, alpha, t_first_l);
+            std::vector<double> walk = generate_power_law_point_process(alpha, tau_0, sample_amount);
+            double slope = dfa(walk, alpha, t_first_l, t_last_l); 
             if (!std::isnan(slope)) {
                 slopes.push_back(slope);
                 detailed_output << "," << setprecision(15) << slope;

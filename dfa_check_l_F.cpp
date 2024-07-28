@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
         vector<double> slopes;
 
         for (int i = 0; i < number_i; ++i) {
-            std::vector<double> walk = generate_power_law_point_process(alpha, tau_0, sample_amount, cap_rate);
+            std::vector<double> walk = generate_power_law_point_process(alpha, tau_0, sample_amount);
             double slope = dfa(walk, alpha, t_first_l, t_last_l);
             if (!std::isnan(slope)) {
                 slopes.push_back(slope);

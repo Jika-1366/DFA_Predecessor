@@ -41,7 +41,7 @@ std::vector<double> generate_power_law_walk(double alpha, double tau_0, int samp
 }    
 
 
-std::vector<double> generate_power_law_point_process(double alpha, double tau_0, int sample_amount, long long cap_rate) {
+std::vector<double> generate_power_law_point_process(double alpha, double tau_0, int sample_amount) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(0.0, 1.0);

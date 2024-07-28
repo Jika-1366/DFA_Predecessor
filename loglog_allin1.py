@@ -57,10 +57,11 @@ for i, csv_file in enumerate(csv_files):
     #ax.text(0.1, 0.8, f'F = {np.exp(intercept):.2f} * l^{slope:.2f}', transform=plt.gca().transAxes)
 
 # グラフのタイトル、軸ラベル、凡例を設定
-plt.title(f"Log-log graph and linear fitting")
-plt.xlabel("l")
-plt.ylabel("F")
-plt.legend()
+plt.title(f"Log-log graph and linear fitting", fontsize=18) 
+plt.xlabel("l", fontsize=16)
+plt.ylabel("F", fontsize=16)
+plt.legend(fontsize=14) 
+
 
 # 横軸の範囲を設定
 plt.xlim([1.0, max(l)])
