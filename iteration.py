@@ -4,8 +4,8 @@ from itertools import product
 import math
 
 cpp_program = "./dfa_fa3"
-python_path = "C:/Users/user/anaconda3/envs/openinterpreter/python.exe"
-python_script = "c:/cygwin64/home/user/akimotoken/Predecessor/graph_alpha_slope_all.py"
+python_path = "python"
+python_script = "graph_alpha_slope_all.py"
 
 def run_analysis(tau_0, sample_amount, number_i, t_first_l, t_last_l):
     args = [
