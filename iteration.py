@@ -4,7 +4,7 @@ from itertools import product
 import math
 
 cpp_program = "./dfa_fa3"
-python_path = "python"
+python_path = "python3"
 python_script = "graph_alpha_slope_all.py"
 
 def run_analysis(tau_0, sample_amount, number_i, t_first_l, t_last_l):
@@ -37,15 +37,23 @@ def run_analysis(tau_0, sample_amount, number_i, t_first_l, t_last_l):
 
 
 def main():
+    # モードを定義
+    mode = "test"  # "production" または "test" に変更可能
+
     # パラメータの範囲を定義
-    tau_0_range = [1]
-    sample_amount_range = [10**8]
-    
-    number_i_range = [15]
-    t_first_l_range = [16, 100, 1000, 10**4]
-    t_last_l_range = [10**4, 10**5, 10**6, 10**7]
-
-
+    if mode == "production":
+        tau_0_range = [1]
+        sample_amount_range = [10**8]
+        number_i_range = [15]
+        t_first_l_range = [16, 100, 1000, 10**4]
+        t_last_l_range = [10**4, 10**5, 10**6, 10**7]
+    elif mode == "test":
+        tau_0_range = [0.1, 0.5]  # テスト用の値
+        sample_amount_range = [1000]  # テスト用の値
+        number_i_range = [5]  # テスト用の値
+        t_first_l_range = [1, 10]  # テスト用の値
+        t_last_l_range = [10, 100]  # テスト用の値
+        
     results = []
 
     for tau_0, sample_amount, number_i, t_first_l, t_last_l in product(tau_0_range, sample_amount_range, number_i_range, t_first_l_range, t_last_l_range):
@@ -67,7 +75,7 @@ def main():
     # 結果をCSVファイルに保存
     csv_filename = "dfa_results.csv"
     with open(csv_filename, 'w', newline='') as csvfile:
-        fieldnames = ["tau_0", "sample_amount", "number_i", "t_first_l", "t_last_l"]
+        fieldnames = ["tau_0", "sample_amount", "number_i", "t_first_l", "t_last_l", "slope"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for result in results:
