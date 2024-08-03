@@ -46,32 +46,24 @@ std::vector<double> generate_power_law_point_process(double alpha, double tau_0,
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(0.0, 1.0);
     srand(time(NULL));
-
-    std::queue<double> samplesQueue; // 変更: vectorからqueueに変更
-
-    for (int i = 0; i < sample_amount; ++i) {
-        //double u = dis(gen);
-        double u = ((double) rand())/((double) RAND_MAX);
-        // べき分布の逆関数を使用し、tau_0をスケールファクターとして使用
-        //inter_occurence_timeこそがsamplesQueueです。
-        double value = tau_0 * std::pow(u, -1.0 / alpha);
-        samplesQueue.push(value);
-        //cap_rateを使用するなら以下
-        //samplesQueue.push(std::min(value, cap_rate * tau_0));
-
-    }
+    //double u = dis(gen);
     
 
     std::vector<double> N(sample_amount);
     N[0] = 0; 
+    //waiting_timeの取得
+    //double u = dis(gen);
+    double u = ((double) rand())/((double) RAND_MAX);
+    double waiting_time = tau_0 * std::pow(u, -1.0 / alpha);
     //tとは時刻のこと。時刻の積み重ねがinter_occurence_timeを越えたら、Nを+1して、積み重ねをリセット
-    int peace_time = 0;
+    int accumulated_time = 0;
     for (int t = 1; t < sample_amount; ++t) {
-        peace_time += 1;
-        if (peace_time >= samplesQueue.front()){ // 変更: queueの先頭から値を取得
-            peace_time = 0;
+        accumulated_time += 1;
+        if (accumulated_time >= waiting_time){ // 変更: queueの先頭から値を取得
+            accumulated_time = 0;
             N[t]= N[t-1] +1; 
-            samplesQueue.pop(); // queueの先頭の値をqueueから削除
+            double u = ((double) rand())/((double) RAND_MAX);
+            waiting_time = tau_0 * std::pow(u, -1.0 / alpha);
             }
             
         else{N[t] = N[t-1];

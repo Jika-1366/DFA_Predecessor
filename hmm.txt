@@ -1,0 +1,3 @@
+a_2 *j*i^(2-alpha) + a_3 *i *j^(2-alpha)
++a_4*j^(3-alpha)+ a_6 * j^(3-alpha) + a_7 j^(4-2alpha)
++a_9 j^(2-alpha)(i-j)+a_10 *(i-j)(3-alpha)+ a_11 *j^(1-alpha)(i-j)^2
