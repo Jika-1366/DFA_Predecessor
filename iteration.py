@@ -41,14 +41,14 @@ def main():
     mode = "test"  # "production" または "test" に変更可能
 
     # パラメータの範囲を定義
-    if mode == "production":
-        tau_0_range = [1]
+    if mode == "p":
+        tau_0_range = [1.0]
         sample_amount_range = [10**8]
         number_i_range = [15]
-        t_first_l_range = [16, 100, 1000, 10**4]
+        t_first_l_range = [100, 1000, 10**4, 10**5]
         t_last_l_range = [10**4, 10**5, 10**6, 10**7]
     elif mode == "test":
-        tau_0_range = [0.1, 0.5]  # テスト用の値
+        tau_0_range = [1.0]  # テスト用の値
         sample_amount_range = [1000]  # テスト用の値
         number_i_range = [5]  # テスト用の値
         t_first_l_range = [1, 10]  # テスト用の値
