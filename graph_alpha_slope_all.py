@@ -43,10 +43,10 @@ x_line = np.linspace(2, data['alpha'].max(), 100)
 y_line = np.full_like(x_line, 0.5)
 plt.plot(x_line, y_line, color='green', linestyle='--', label='y = 0.5', linewidth=2)
 
-plt.xlabel('Alpha', fontsize=20)
-plt.ylabel('Mean Slope', fontsize=20)
-plt.title('Alpha vs Mean Slope', fontsize=24)
-plt.legend(fontsize=16)
+plt.xlabel('Alpha', fontsize=30)
+plt.ylabel('Mean Slope', fontsize=30)
+plt.title('Alpha vs Mean Slope', fontsize=34)
+plt.legend(fontsize=26)
 plt.grid(True)
 
 # グラフの軸範囲を設定
