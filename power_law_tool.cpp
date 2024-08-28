@@ -187,7 +187,7 @@ vector<vector<double>> generate_segments_2(const vector<double>& data, int scale
 
 
 
-double dfa(vector<double> RW_list, double alpha, int t_first_l, int t_last_l) {
+std::pair<double, double> dfa(vector<double> RW_list, double alpha, int t_first_l, int t_last_l) {
     // alphaを少数第1位で表示するために、snprintfを使用します。
     char buffer[20];
     snprintf(buffer, sizeof(buffer), "%.1f", alpha);
@@ -223,7 +223,7 @@ double dfa(vector<double> RW_list, double alpha, int t_first_l, int t_last_l) {
         // Check if the number of elements in segments matches N_used
         if (total_elements != N_used) {
             cerr << "Error: The number of elements in segments does not match N_used. Number of elements in segments: " << total_elements << ", N_used: " << N_used << endl;
-            return 1; // Error exit
+            return std::make_pair(1, 1); // Error exit
         }
         /////////////////////////////////////////////////////
 
@@ -262,6 +262,7 @@ double dfa(vector<double> RW_list, double alpha, int t_first_l, int t_last_l) {
     // log(F)とlog(l)に対して線形フィッティングを行い、傾きを取得
     tuple<double, double, double> result = find_best_fit(log_F, log_l);
     double slope = get<0>(result);
-    return slope;
+    double intercept = get<1>(result);
+    return std::make_pair(slope, intercept);
 
 }
