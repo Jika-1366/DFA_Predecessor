@@ -1,6 +1,9 @@
 import math
 from scipy.special import gamma
 
+def calculate_mu(alpha, tau_0):
+    return (alpha * tau_0) / (alpha - 1)
+
 def calculate_pc(tau_0, alpha, mu):
     return tau_0 / ((alpha - 1) * (2 - alpha) * mu**2)
 

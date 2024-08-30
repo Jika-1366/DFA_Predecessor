@@ -12,3 +12,7 @@ def calculate_cova1_coffi1(qc, pc,mu):
 def calculate_second_cova1_coff1(qc, pc,mu):
     second_cova1_coffi1 = pc**2
     return second_cova1_coffi1
+
+def calculate_second_cova1_inte1(alpha, qc, pc, mu):
+    second_cova1_inte = 1/(5-2*alpha)
+    return second_cova1_inte
