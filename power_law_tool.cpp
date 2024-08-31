@@ -11,6 +11,7 @@
 #include <vector>
 #include <cmath>
 #include <queue> // 追加: queueを使うために必要
+#include <tuple> 
 
 #include "power_law_tool.hpp"
 
@@ -187,7 +188,7 @@ vector<vector<double>> generate_segments_2(const vector<double>& data, int scale
 
 
 
-std::pair<double, double> dfa(vector<double> RW_list, double alpha, int t_first_l, int t_last_l) {
+std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<double> RW_list, double alpha, int t_first_l, int t_last_l) {
     // alphaを少数第1位で表示するために、snprintfを使用します。
     char buffer[20];
     snprintf(buffer, sizeof(buffer), "%.1f", alpha);
@@ -223,7 +224,13 @@ std::pair<double, double> dfa(vector<double> RW_list, double alpha, int t_first_
         // Check if the number of elements in segments matches N_used
         if (total_elements != N_used) {
             cerr << "Error: The number of elements in segments does not match N_used. Number of elements in segments: " << total_elements << ", N_used: " << N_used << endl;
-            return std::make_pair(1, 1); // Error exit
+            // エラー時は意味のない値を返す
+            return std::make_tuple(
+                std::numeric_limits<double>::quiet_NaN(),  // slope
+                std::numeric_limits<double>::quiet_NaN(),  // intercept
+                vector<int>(),                             // empty l_values
+                vector<double>()                           // empty F_values
+            );
         }
         /////////////////////////////////////////////////////
 
@@ -251,6 +258,13 @@ std::pair<double, double> dfa(vector<double> RW_list, double alpha, int t_first_
     }
     output.close();
 
+    //pairのベクトルにしてしまったので、それぞれを分ける。
+    vector<int> l_values;
+    vector<double> F_values;
+    for (const auto& record : records_l_F) {
+        l_values.push_back(record.first);
+        F_values.push_back(record.second);
+    }
 
     // records_l_Fからlog(l)とlog(F)の対数を作成
     vector<double> log_l(records_l_F.size());
@@ -263,6 +277,6 @@ std::pair<double, double> dfa(vector<double> RW_list, double alpha, int t_first_
     tuple<double, double, double> result = find_best_fit(log_F, log_l);
     double slope = get<0>(result);
     double intercept = get<1>(result);
-    return std::make_pair(slope, intercept);
 
+    return std::make_tuple(slope, intercept, l_values, F_values);
 }

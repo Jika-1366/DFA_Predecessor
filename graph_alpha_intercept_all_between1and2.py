@@ -4,6 +4,16 @@ from formulas.covariance1 import calculate_cova1_coffi1, calculate_cova1_inte1
 from formulas.covariance2 import calculate_cova2_inte
 from formulas.covariance3 import calculate_cova3_inte
 
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
+
+# グラフを出力するファイル名を変数として定義
+output_graph_file = 'graph_alpha_intercept_between1and2.png'
+
+# ファイル名を表示
+print(f'グラフは {output_graph_file} として保存されます。')
 
 #b_i * b_inte_iで、i=4は抜いて足し算すれば、F^2の第二項が得られます。
 
@@ -39,18 +49,6 @@ def theoretical_value(alpha):
     print(f"coffi: {coffi:.4f}")
 
     return np.log(coffi)
-
-
-
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy import stats
-
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy import stats
 
 def main():
     try:
@@ -107,10 +105,10 @@ def main():
         plt.yticks(fontsize=16)
 
         # グラフを保存
-        plt.savefig('graph_alpha_intercept_between1and2.png', dpi=300, bbox_inches='tight')
+        plt.savefig(output_graph_file, dpi=300, bbox_inches='tight')
         plt.close()
 
-        print('グラフが graph_alpha_intercept_between1and2.png として保存されました。')
+        print(f'グラフが {output_graph_file} として保存されました。')
 
     except Exception as e:
         print(f'エラーが発生しました: {str(e)}')

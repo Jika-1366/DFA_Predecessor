@@ -20,9 +20,9 @@ int main(int argc, char* argv[]) {
     double tau_0 = 1.0;
     int sample_amount = pow(10,6);
     int number_i = 20;
-    int t_first_l = 10000;
-    int t_last_l = 1000000;
-
+    int t_first_l = 16;
+    int t_last_l = 100000;
+    
     // コマンドライン引数の解析
     for (int i = 1; i < argc; i += 2) {
         string arg = argv[i];
@@ -58,19 +58,36 @@ int main(int argc, char* argv[]) {
     for (double alpha = 0.1; alpha <= 3.5; alpha += 0.1) {
         vector<double> slopes;
         vector<double> intercepts;
+        vector<vector<double>> all_F_values;
+        vector<int> l_values;
+
+        // alphaを少数第1位で表示するために、snprintfを使用
+        char buffer[20];
+        snprintf(buffer, sizeof(buffer), "%.1f", alpha);
+        string alpha_str = buffer;
+        string avg_F_values_file = "avg_F/" + alpha_str + ".csv";
+        ofstream avg_F_values_output(avg_F_values_file);
 
         detailed_output << fixed << setprecision(1) << alpha;
         detailed_intercept_output << fixed << setprecision(1) << alpha;
 
         for (int i = 0; i < number_i; ++i) {
             std::vector<double> walk = generate_power_law_point_process(alpha, tau_0, sample_amount);
-            std::pair<double, double> result = dfa(walk, alpha, t_first_l, t_last_l);
-            double slope = result.first;
-            double intercept = result.second;
+            std::tuple<double, double, std::vector<int>, std::vector<double>> result = dfa(walk, alpha, t_first_l, t_last_l);
+            double slope = std::get<0>(result);
+            double intercept = std::get<1>(result);
+            std::vector<int> current_l_values = std::get<2>(result);
+            std::vector<double> current_F_values = std::get<3>(result);
 
             if (!std::isnan(slope) && !std::isnan(intercept)) {
                 slopes.push_back(slope);
                 intercepts.push_back(intercept);
+                all_F_values.push_back(current_F_values);
+                
+                if (i == 0) {  // 最初のイテレーションでl_valuesを保存
+                    l_values = current_l_values;
+                }
+
                 detailed_output << "," << setprecision(15) << slope;
                 detailed_intercept_output << "," << setprecision(15) << intercept;
             } else {
@@ -93,11 +110,31 @@ int main(int argc, char* argv[]) {
         } else {
             cout << "警告: alpha = " << fixed << setprecision(1) << alpha << " で有効なslopeまたはinterceptがありませんでした。" << endl;
         }
+
+        if (!all_F_values.empty()) {
+            vector<double> avg_F_values(all_F_values[0].size(), 0.0);
+            for (const auto& F_values : all_F_values) {
+                for (size_t j = 0; j < F_values.size(); ++j) {
+                    avg_F_values[j] += F_values[j];
+                }
+            }
+            for (auto& avg : avg_F_values) {
+                avg /= all_F_values.size();
+            }
+
+            // 平均F_valuesをCSVに出力
+            for (size_t j = 0; j < l_values.size(); ++j) {
+                avg_F_values_output << l_values[j] << "," << setprecision(15) << avg_F_values[j] << endl;
+            }
+        }
+
     }
+
     output.close();
     detailed_output.close();
     intercept_output.close();
     detailed_intercept_output.close();
     cout << "結果をファイル " << output_file << " と " << intercept_output_file << " に保存しました。" << endl;
     cout << "詳細な結果をファイル " << detailed_output_file << " と " << detailed_intercept_output_file << " に保存しました。" << endl;
+    cout << "すべてのalpha値に対する平均F値の結果を avg_F ディレクトリに保存しました。" << endl;
 }
