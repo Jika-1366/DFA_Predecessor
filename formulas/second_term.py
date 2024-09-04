@@ -32,12 +32,12 @@ def calculate_second_coffi(alpha):
     mu = calculate_mu(alpha= alpha, tau_0 = tau_0)
     pc = calculate_pc(tau_0=tau_0, alpha=alpha, mu=mu)
     qc = calculate_qc(tau_0=tau_0, alpha=alpha, mu=mu)
-    a_and_b= calculate_a_and_b(c, tau_0, alpha, mu)
+    a_and_b= calculate_a_and_b(c=c, tau_0=tau_0, alpha=alpha, mu= mu)
 
 
-    sum_coffi1 = calculate_second_cova1(alpha, qc,pc,mu)
-    sum_coffi2 = calculate_second_cova2(alpha, qc,pc,mu, a_and_b)
-    sum_coffi3 = calculate_second_cova3(alpha, qc,pc,mu, a_and_b)
+    sum_coffi1 = calculate_second_cova1(alpha=alpha , qc=qc ,pc=pc,mu=mu)
+    sum_coffi2 = calculate_second_cova2(alpha=alpha , qc=qc ,pc=pc,mu=mu,a_and_b=a_and_b)
+    sum_coffi3 = calculate_second_cova3(alpha=alpha , qc=qc ,pc=pc,mu=mu,a_and_b=a_and_b)
     coffi1 = sum_coffi1
     coffi2= -sum_coffi2/12
     coffi3 = -sum_coffi3

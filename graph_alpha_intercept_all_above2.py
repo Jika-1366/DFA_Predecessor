@@ -6,9 +6,9 @@ from scipy import stats
 # CSVファイルを読み込む
 data = pd.read_csv('alpha_all_intercepts.csv', header=None)
 
-#alpha>=2のデータだけ用いる。
-# alpha >= 2 のデータのみを選択
-data = data[data.iloc[:, 0] >= 2]
+#alpha>2のデータだけ用いる。
+# alpha > 2 のデータのみを選択
+data = data[data.iloc[:, 0] > 2]
 
 # 列名を設定
 data.columns = ['alpha'] + [f'intercepts_{i}' for i in range(1, len(data.columns))]
@@ -25,17 +25,30 @@ results = data.apply(calculate_mean_and_error, axis=1)
 data = data.join(results)
 
 # 計算値を計算する関数
-def theoretical_value(alpha):
+def theoretical_value_hand(alpha):
     if alpha <= 1 or alpha <= 2:
         return np.nan
     mu = alpha / (alpha - 1)
     sigma2 = alpha / (((alpha - 2)**2) * (alpha - 1))
     coffi = ((-1 + (1/mu**3) + 15/2) * sigma2 - 1/mu) / 15
+    sqrt_coffi = np.sqrt(coffi)
+    return np.log(sqrt_coffi)
 
-    return np.log(coffi)
+def theoretical_value_mathmatica(alpha):
+    mu = alpha / (alpha - 1)
+    sigma2 = alpha / (((alpha - 2)**2) * (alpha - 1))
+    coffi =  (
+            1 / (15 * mu)
+            - 13 * sigma2 / 30
+            + 0.5 * sigma2
+            - sigma2 / (15 * mu**3)
+    )
+    sqrt_coffi = np.sqrt(coffi)
+    return np.log(sqrt_coffi)
+
 
 # 計算値
-data['theoretical'] = data['alpha'].apply(theoretical_value)
+data['theoretical'] = data['alpha'].apply(theoretical_value_mathmatica)
 
 # 直線の式を計算
 slope, intercept, r_value, p_value, std_err = stats.linregress(data['alpha'], data['mean_intercept'])

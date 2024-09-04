@@ -48,7 +48,8 @@ def theoretical_value(alpha):
     coffi = sum_coffi1+sum_coffi2+sum_coffi3
     print(f"coffi: {coffi:.4f}")
 
-    return np.log(coffi)
+    sqrt_coffi = np.sqrt(coffi)
+    return np.log(sqrt_coffi)
 
 def main():
     try:
