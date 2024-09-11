@@ -260,6 +260,7 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<dou
     output.close();
 
     //pairのベクトルにしてしまったので、それぞれを分ける。
+
     vector<int> l_values;
     vector<double> F_values;
     for (const auto& record : records_l_F) {
@@ -271,8 +272,10 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<dou
     vector<double> log_l(records_l_F.size());
     vector<double> log_F(records_l_F.size());
     for (size_t i = 0; i < records_l_F.size(); ++i) {
-        log_l[i] = log(records_l_F[i].first);
-        log_F[i] = log(records_l_F[i].second);
+        if (records_l_F[i].first >= 5*pow(10,4)){
+            log_l[i] = log(records_l_F[i].first);
+            log_F[i] = log(records_l_F[i].second);
+        }
     }
     // log(F)とlog(l)に対して線形フィッティングを行い、傾きを取得
     tuple<double, double, double> result = find_best_fit(log_F, log_l);
