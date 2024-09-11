@@ -5,10 +5,10 @@ def calculate_mu(alpha, tau_0):
     return (alpha * tau_0) / (alpha - 1)
 
 def calculate_pc(tau_0, alpha, mu):
-    return tau_0 / ((alpha - 1) * (2 - alpha) * mu**2)
+    return (tau_0**alpha) / ((alpha - 1) * (2 - alpha) * mu**2)
 
 def calculate_qc(tau_0, alpha, mu):
-    return 2 * tau_0 / ((2 - alpha) * (3 - alpha) * mu**3)
+    return 2 * (tau_0**alpha) / ((2 - alpha) * (3 - alpha) * mu**3)
 
 
 def calculate_c(alpha, tau_0):

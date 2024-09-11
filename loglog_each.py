@@ -7,47 +7,55 @@ import re
 
 from formulas.second_term import calculate_second_coffi
 from graph_alpha_intercept_all_between1and2 import theoretical_value
-
+from graph_alpha_slope_all import prepare_slope_data
+from graph_alpha_intercept_all_above2 import prepare_data_above2
 
 def calculate_F_calc_simple(l, alpha):
     global main_coffi
-    log_main_coffi = theoretical_value(alpha)
-    main_coffi =  np.exp(log_main_coffi)
-    return (main_coffi*l**((3-alpha)/2) )
+    sqrt_log_main_coffi = theoretical_value(alpha)
+    sqrt_main_coffi = np.exp(sqrt_log_main_coffi)
+    main_coffi = sqrt_main_coffi**2.0
+    F2 = (main_coffi * l**(3-alpha))
+    F = np.sqrt(F2)
+    print("main_coffi: "+str(np.sqrt(main_coffi)))
+    return F
 
 def calculate_F_calc_detailed(l, alpha):
     global main_coffi, second_coffi
-    log_main_coffi = theoretical_value(alpha)
-    main_coffi =  np.exp(log_main_coffi)
+    sqrt_log_main_coffi = theoretical_value(alpha)
+    sqrt_main_coffi =  np.exp(sqrt_log_main_coffi)
+    main_coffi = sqrt_main_coffi**2.0
     second_coffi = calculate_second_coffi(alpha=alpha)
-    return (main_coffi*l**((3-alpha)/2) + second_coffi*l**(2-alpha))
+    F2= (main_coffi*l**((3-alpha)) + second_coffi*l**(4-2*alpha))
+    F = np.sqrt(F2)
+    return F
 
 
 def calcualte_F_calc_alpha_above2(l, alpha):
     global coffi_alpha_above2
     mu = alpha / (alpha - 1)
-    sigma2 = alpha / (((alpha - 2)**2) * (alpha - 1))
-
+    
     coffi_alpha_above2 =  (
             1 / (15 * mu)
-            - 13 * sigma2 / 30
-            + 0.5 * sigma2
-            - sigma2 / (15 * mu**3)
     )
 
-    return (
-        1 / (10 * l**3 * mu) 
-        - 1 / (6 * l * mu) 
-        + l / (15 * mu) 
-        - sigma2 / 2 
-        + sigma2 / (10 * l**3) 
-        - sigma2 / (6 * l) 
-        - 13 * l * sigma2 / 30 
-        + 0.5 * (1 + l) * sigma2 
-        - sigma2 / (10 * l**3 * mu**3) 
-        + sigma2 / (6 * l * mu**3) 
-        - l * sigma2 / (15 * mu**3)
+    F2 =  (
+        coffi_alpha_above2*l
     )
+    F = np.sqrt(F2)
+    return F
+
+
+def calculate_F_calced_dfa3(l, alpha):
+    global slope, intercept
+    slope_data_row = slope_data[slope_data['alpha'] == alpha]
+    slope = slope_data_row['mean_slope'].iloc[0]
+    intercept_data_row = intercept_data_above2[intercept_data_above2['alpha'] == alpha]
+    intercept = intercept_data_row['mean_intercept'].iloc[0]
+    slope = slope
+    intercept = np.exp(intercept)
+    F =  intercept*(l**slope)
+    return F
 
 
 def extract_alpha(filename):
@@ -73,6 +81,11 @@ fig, ax = None, None
 
 colors = ['blue', 'cyan', 'magenta', 'yellow', 'black', 'purple', 'orange']
 markers = ['o', 's', '^', 'v', '<', '>', 'D']
+
+slope_data = prepare_slope_data()
+intercept_data_above2= prepare_data_above2()
+
+
 
 for i, csv_file in enumerate(csv_files):
     alpha = extract_alpha(csv_file)
@@ -107,11 +120,11 @@ for i, csv_file in enumerate(csv_files):
     slope = coefficients[0]
     intercept = coefficients[1]
     
-    print(f"{csv_file}: slope={slope:.2f}, intercept={intercept:.2f}")
+    print(f"{csv_file}: slope={slope:.4f}, intercept={intercept:.4f}")
     
     fit_line = np.exp(intercept) * l ** slope
     ax.loglog(l, fit_line, linestyle='--', color='blue', 
-              label=f'Fit: F = {np.exp(intercept):.2e} * l^{slope:.2f}')
+              label=f'Fit: F = {np.exp(intercept):.4f} * l^{slope:.4f}')
     
 
     global main_coffi, second_coffi, coffi_alpha_above2
@@ -119,16 +132,18 @@ for i, csv_file in enumerate(csv_files):
     if 1 < alpha < 2:
         F_calc_simple = calculate_F_calc_simple(l, alpha)
         ax.loglog(l, F_calc_simple, linestyle='-', color='red', linewidth=1.5,
-                  label=f'Calc Simple: F = {main_coffi:.2e}*l^({(3-alpha)/2:.2f})')
+                  label=f'Calc Simple: F = {np.sqrt(main_coffi):.3f}*l^({(3-alpha)/2:.3f})')
         F_calc_complex = calculate_F_calc_detailed(l, alpha)
         ax.loglog(l, F_calc_complex, linestyle='-', color='green', linewidth=1.5,
-                  label=f'Calc Complex: F = {main_coffi:.2e}l^({(3-alpha)/2:.2f}) + {second_coffi:.2e}*l^({2-alpha:.2f})')
+                  label=f'Calc Complex: F = {np.sqrt(main_coffi):.3f}l^({(3-alpha)/2}) + {np.sqrt(second_coffi):.3f}*l^({2-alpha:.3f})')
     # alpha > 2 の場合の処理を追加
     elif alpha > 2:
         F_calc_above2 = calcualte_F_calc_alpha_above2(l, alpha)
+        F_dfa3 = calculate_F_calced_dfa3(l, alpha)
         ax.loglog(l, F_calc_above2, linestyle='-', color='purple', linewidth=1.5,
-                  label=f'Calc (α > 2): F = {coffi_alpha_above2:.2e}*l^0.5')
-        
+                  label=f'Calc (α > 2): F = {coffi_alpha_above2:.3f}*l^0.5')
+        ax.loglog(l, F_dfa3, linestyle='-', color='orange', linewidth=1.5,
+                  label=f'Calc DFA3: F = {000:.3f}*l^0.5')
         # y軸の範囲を更新
         ax.set_ylim([min(min(F), min(F_calc_above2)), 
                      max(max(F), max(F_calc_above2))])
@@ -147,6 +162,20 @@ for i, csv_file in enumerate(csv_files):
                      max(max(F), max(F_calc_simple), max(F_calc_complex))])
     else:
         ax.set_ylim([min(F), max(F)])
+    if alpha == 1.2:
+        # l = 100のときのそれぞれの値を計算してプリント
+        l_100 = 10**6
+
+        F_100 = np.exp(intercept) * l_100 ** slope
+        F_calc_simple_100 = calculate_F_calc_simple(l_100, alpha)
+        F_calc_complex_100 = calculate_F_calc_detailed(l_100, alpha)
+        
+        print(f"α = {alpha:.1f}, l = 100 のときの値:")
+        print(f"  フィッティング線: F = {F_100:.4f}")
+        print(f"  単純計算値: F = {F_calc_simple_100:.4f}")
+        print(f"  詳細計算値: F = {F_calc_complex_100:.4f}")
+
+        
 
 if fig is not None:
     plt.savefig(f"{output_dir}/graph_alpha_{current_alpha:.1f}.png")

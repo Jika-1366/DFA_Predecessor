@@ -92,6 +92,7 @@ std::tuple<double, double, double> find_best_fit(const std::vector<double>& y, c
         throw std::invalid_argument("x and y must have the same size");
     } else {
         x_values = x;  // 既存のxをコピー
+        //cout << "コピーしました" << endl;
     }
 
     // 平均を計算

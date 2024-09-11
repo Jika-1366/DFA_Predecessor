@@ -39,7 +39,7 @@ def calculate_second_coffi(alpha):
     sum_coffi2 = calculate_second_cova2(alpha=alpha , qc=qc ,pc=pc,mu=mu,a_and_b=a_and_b)
     sum_coffi3 = calculate_second_cova3(alpha=alpha , qc=qc ,pc=pc,mu=mu,a_and_b=a_and_b)
     coffi1 = sum_coffi1
-    coffi2= -sum_coffi2/12
+    coffi2= -12*sum_coffi2
     coffi3 = -sum_coffi3
     coffi = coffi1 + coffi2 + coffi3
     return coffi
