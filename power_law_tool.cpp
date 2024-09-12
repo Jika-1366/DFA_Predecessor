@@ -259,24 +259,25 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<dou
     }
     output.close();
 
-    //pairのベクトルにしてしまったので、それぞれを分ける。
 
+    //pairのベクトルにしてしまったので、それぞれを分ける。
     vector<int> l_values;
     vector<double> F_values;
     for (const auto& record : records_l_F) {
-        l_values.push_back(record.first);
-        F_values.push_back(record.second);
+        if (record.first >= 5*pow(10,4)){
+            l_values.push_back(record.first);
+            F_values.push_back(record.second);
+        }
     }
 
     // records_l_Fからlog(l)とlog(F)の対数を作成
-    vector<double> log_l(records_l_F.size());
-    vector<double> log_F(records_l_F.size());
-    for (size_t i = 0; i < records_l_F.size(); ++i) {
-        if (records_l_F[i].first >= 5*pow(10,4)){
-            log_l[i] = log(records_l_F[i].first);
-            log_F[i] = log(records_l_F[i].second);
-        }
+    vector<double> log_l(l_values.size());
+    vector<double> log_F(l_values.size());    
+    for (size_t i = 0; i < l_values.size(); ++i) {
+        log_l[i] = log(l_values[i]);
+        log_F[i] = log(F_values[i]);
     }
+
     // log(F)とlog(l)に対して線形フィッティングを行い、傾きを取得
     tuple<double, double, double> result = find_best_fit(log_F, log_l);
     double slope = get<0>(result);

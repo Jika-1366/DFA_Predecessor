@@ -137,4 +137,5 @@ int main(int argc, char* argv[]) {
     cout << "結果をファイル " << output_file << " と " << intercept_output_file << " に保存しました。" << endl;
     cout << "詳細な結果をファイル " << detailed_output_file << " と " << detailed_intercept_output_file << " に保存しました。" << endl;
     cout << "すべてのalpha値に対する平均F値の結果を avg_F ディレクトリに保存しました。" << endl;
+
 }
