@@ -19,6 +19,8 @@ print(f'グラフは {output_graph_file} として保存されます。')
 
 # 計算値を計算する関数
 def theoretical_value(alpha):
+    if alpha >=1.99:
+        return None
     tau_0 = 1.0
     c = calculate_c(alpha=alpha, tau_0=tau_0)
     mu = (alpha * tau_0) / (alpha - 1)
@@ -54,13 +56,14 @@ def theoretical_value(alpha):
     sqrt_coffi = np.sqrt(coffi)
     return np.log(sqrt_coffi)
 
+
 def main():
     try:
         # CSVファイルを読み込む
         data = pd.read_csv('alpha_all_intercepts.csv', header=None)
 
-        # 1 < alpha < 2 のデータのみを選択
-        data = data[(data.iloc[:, 0] > 1) & (data.iloc[:, 0] < 2)]
+        # 1 < alpha < 2.1 のデータのみを選択
+        data = data[(data.iloc[:, 0] > 1) & (data.iloc[:, 0] < 2.1)]
 
         # 列名を設定
         data.columns = ['alpha'] + [f'intercepts_{i}' for i in range(1, len(data.columns))]
@@ -113,9 +116,11 @@ def main():
         plt.close()
 
         print(f'グラフが {output_graph_file} として保存されました。')
-
     except Exception as e:
-        print(f'エラーが発生しました: {str(e)}')
+        import traceback
+        traceback_str = traceback.format_exc()
+        print(f"エラーが発生しました: {e}")
+        print(f"トレースバック情報:\n{traceback_str}")
 
 if __name__ == "__main__":
     main()

@@ -18,6 +18,7 @@ def calculate_F_calc_simple(l, alpha):
     F2 = (main_coffi * l**(3-alpha))
     F = np.sqrt(F2)
     print("main_coffi: "+str(np.sqrt(main_coffi)))
+    print("sqrt_log_main_coffi: "+str(sqrt_log_main_coffi))
     return F
 
 def calculate_F_calc_detailed(l, alpha):
@@ -104,10 +105,11 @@ for i, csv_file in enumerate(csv_files):
         current_alpha = alpha
         color_index = 0
     
-    df = pd.read_csv(csv_file)
+    df = pd.read_csv(csv_file, header=None)
     l = df.iloc[:, 0].values
     F = df.iloc[:, 1].values
     
+    print(l.tolist()[0])
     mask = (l > 0) & (F > 0)
     l = l[mask]
     F = F[mask]
@@ -119,14 +121,13 @@ for i, csv_file in enumerate(csv_files):
     ax.loglog(l, F, marker=markers[color_index % len(markers)], linestyle='', 
               label=f'Data_{os.path.basename(csv_file)}', color=colors[color_index % len(colors)])
     
+
     log_l = np.log(l)
     log_F = np.log(F)
     coefficients = np.polyfit(log_l, log_F, 1)
     slope = coefficients[0]
     intercept = coefficients[1]
-    
     print(f"{csv_file}: slope={slope:.4f}, intercept={intercept:.4f}")
-    
     fit_line = np.exp(intercept) * l ** slope
     ax.loglog(l, fit_line, linestyle='--', color='blue', 
               label=f'Fit: F = {np.exp(intercept):.4f} * l^{slope:.4f}')

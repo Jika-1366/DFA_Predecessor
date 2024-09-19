@@ -47,8 +47,7 @@ for i, csv_file in enumerate(csv_files):
         fig, ax = plt.subplots(figsize=(10, 6))
         current_alpha = alpha
         color_index = 0
-    
-    df = pd.read_csv(csv_file)
+    df = pd.read_csv(csv_file, header=None)
     l = df.iloc[:, 0].values
     F = df.iloc[:, 1].values
     
