@@ -7,7 +7,7 @@ import re
 
 from formulas.second_term import calculate_second_coffi
 from graph_alpha_intercept_all_between1and2 import theoretical_value
-from loglog_each import calcualte_F_calc_alpha_above2, calculate_F_calc_detailed, calculate_F_calc_simple
+from loglog_each import calcualte_F_calc_alpha_above2, calculate_F_calc_detailed, calculate_F_calc_simple, input_dir
 
 def extract_alpha(filename):
     match = re.search(r'(\d+(?:\.\d+)?)', os.path.basename(filename))
@@ -18,7 +18,7 @@ def extract_alpha(filename):
 output_dir = "linear_each"
 os.makedirs(output_dir, exist_ok=True)
 
-input_dir = "avg_F"
+
 print(f"現在の読み込みディレクトリ: {input_dir}")
 print("正常ですね")
 

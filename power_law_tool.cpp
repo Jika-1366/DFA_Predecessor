@@ -260,6 +260,13 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<dou
     output.close();
 
 
+    vector<int> l_values_all;
+    vector<double> F_values_all;
+    for (const auto& record : records_l_F) {
+        l_values_all.push_back(record.first);
+        F_values_all.push_back(record.second);
+    }
+    
     //pairのベクトルにしてしまったので、それぞれを分ける。
     vector<int> l_values;
     vector<double> F_values;
@@ -283,5 +290,5 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<dou
     double slope = get<0>(result);
     double intercept = get<1>(result);
 
-    return std::make_tuple(slope, intercept, l_values, F_values);
+    return std::make_tuple(slope, intercept, l_values_all, F_values_all);
 }

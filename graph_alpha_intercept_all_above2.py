@@ -28,11 +28,19 @@ def prepare_data_above2():
 
 # 計算値を計算する関数
 def theoretical_value_hand(alpha):
-    if alpha <= 1 or alpha <= 2:
+    if alpha <= 2:
         return np.nan
+    
     mu = alpha / (alpha - 1)
-    sigma2 = alpha / (((alpha - 2)**2) * (alpha - 1))
-    coffi = ((-1 + (1/mu**3) + 15/2) * sigma2 - 1/mu) / 15
+    secondmoment = alpha/(alpha-2)
+
+    sigma2 = alpha/((mu**3)*(alpha-2)*((alpha-1)**2))
+    #c1 = (secondmoment - 2*(mu**2))/(2*(mu**2))
+    c1 = (1+2*alpha-alpha**2)/(2*alpha*(alpha-2))
+    
+    #coffi = (1+(2*c1))/(15*mu)
+    coffi = (sigma2)/15
+
     sqrt_coffi = np.sqrt(coffi)
     return np.log(sqrt_coffi)
 

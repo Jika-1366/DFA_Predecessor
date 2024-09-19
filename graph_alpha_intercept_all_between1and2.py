@@ -48,7 +48,7 @@ def theoretical_value(alpha):
     sum_coffi3 = 2.0*sum(cova3_list)
     coffi3 = -sum_coffi3
 
-    coffi = coffi1+coffi2+coffi3
+    coffi = coffi1 + coffi2 + coffi3
     print(f"coffi: {coffi:.4f}")
 
     sqrt_coffi = np.sqrt(coffi)

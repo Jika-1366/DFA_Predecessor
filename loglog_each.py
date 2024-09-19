@@ -35,10 +35,15 @@ def calcualte_F_calc_alpha_above2(l, alpha):
     global coffi_alpha_above2
     mu = alpha / (alpha - 1)
     
-    coffi_alpha_above2 =  (
-            1 / (15 * mu)
-    )
+    c1 = (1+2*alpha-alpha**2)/(2*alpha*(alpha-2))
 
+    #coffi_alpha_above2 =  (
+    #        (1+2*c1 )/ (15 * mu)
+    #)
+
+    coffi_alpha_above2 =  (
+            (1)/ (15 * mu)
+    )
     F2 =  (
         coffi_alpha_above2*l
     )
@@ -142,8 +147,8 @@ for i, csv_file in enumerate(csv_files):
         F_dfa3 = calculate_F_calced_dfa3(l, alpha)
         ax.loglog(l, F_calc_above2, linestyle='-', color='purple', linewidth=1.5,
                   label=f'Calc (α > 2): F = {coffi_alpha_above2:.3f}*l^0.5')
-        ax.loglog(l, F_dfa3, linestyle='-', color='orange', linewidth=1.5,
-                  label=f'Calc DFA3: F = {000:.3f}*l^0.5')
+        #ax.loglog(l, F_dfa3, linestyle='-', color='orange', linewidth=1.5,
+                  #label=f'Calc DFA3: F = {000:.3f}*l^0.5')
         # y軸の範囲を更新
         ax.set_ylim([min(min(F), min(F_calc_above2)), 
                      max(max(F), max(F_calc_above2))])
