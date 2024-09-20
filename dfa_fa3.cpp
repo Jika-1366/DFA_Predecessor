@@ -118,8 +118,8 @@ int main(int argc, char* argv[]) {
                     avg_F_values[j] += F_values[j];
                 }
             }
-            for (auto& avg : avg_F_values) {
-                avg /= all_F_values.size();
+            for (size_t i = 0; i < avg_F_values.size(); ++i) {
+                avg_F_values[i] = avg_F_values[i] / all_F_values.size();
             }
 
             // 平均F_valuesをCSVに出力
