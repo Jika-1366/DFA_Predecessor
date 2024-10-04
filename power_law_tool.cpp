@@ -42,14 +42,70 @@ std::vector<double> generate_power_law_walk(double alpha, double tau_0, int samp
 }    
 
 
+double waiting_time_power_law(double tau_0, double alpha) {
+    double u = ((double) rand())/((double) RAND_MAX);
+    return tau_0 * std::pow(u, -1.0 / alpha);
+}
+
+
+// イベント時刻をシミュレーションする関数
+std::vector<double> simulate_event_times(double tau_0, double alpha, double T) {
+    std::vector<double> event_times;
+    double t = 0.0;
+
+    while (t < T) {
+        double waiting_time = waiting_time_power_law(tau_0, alpha);
+        t += waiting_time;
+        if (t >= T) break; // シミュレーション時間を超えたら終了
+        event_times.push_back(t);
+    }
+
+    return event_times;
+}
+
+// 各整数時刻での累積イベント数を計算する関数（2つのforループを使用）
+std::vector<double> count_events_per_unit_time(const std::vector<double>& event_times, int T) {
+    std::vector<double> event_counts(T, 0.0); // サイズをTに変更
+    std::vector<int> events_per_time(T, 0);   // サイズをTに変更
+
+    // 1つ目のforループ：各時刻でのイベント数をカウント
+    for (double t : event_times) {
+        int time_index = static_cast<int>(t); // floor(t) から変更
+        if (time_index < T) {
+            events_per_time[time_index]++;
+        }
+    }
+
+    // 2つ目のforループ：累積イベント数を計算
+    event_counts[0] = events_per_time[0];
+    for (int i = 1; i < T; ++i) {
+        event_counts[i] = event_counts[i - 1] + events_per_time[i];
+    }
+
+    return event_counts;
+}
+
+// 更新過程をシミュレーションし、各時刻でのイベント数を返す関数
 std::vector<double> generate_power_law_point_process(double alpha, double tau_0, int sample_amount) {
+    // 乱数シードの初期化（必要に応じてシード値を固定してください）
+    srand(static_cast<unsigned int>(time(NULL)));
+
+    // イベント時刻のシミュレーション
+    std::vector<double> event_times = simulate_event_times(tau_0, alpha, sample_amount);
+
+    // 各時刻での累積イベント数を計算
+    std::vector<double> event_counts = count_events_per_unit_time(event_times, sample_amount);
+
+    return event_counts;
+}
+
+std::vector<double> incorrect_generate_power_law_point_process(double alpha, double tau_0, int sample_amount) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(0.0, 1.0);
     srand(time(NULL));
     //double u = dis(gen);
     
-
     std::vector<double> N(sample_amount);
     N[0] = 0; 
     //waiting_timeの取得
