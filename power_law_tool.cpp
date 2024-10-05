@@ -327,7 +327,7 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<dou
     vector<int> l_values;
     vector<double> F_values;
     for (const auto& record : records_l_F) {
-        if (record.first >= 5*pow(10,4)){
+        if (record.first >= pow(10,5)){
             l_values.push_back(record.first);
             F_values.push_back(record.second);
         }
