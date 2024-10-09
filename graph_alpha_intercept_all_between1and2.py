@@ -39,7 +39,7 @@ def theoretical_value(alpha):
     cova2_list = [cova2_inte_list[i]*cova2_coffi_list[i] for i in range(len(cova2_inte_list))]
     # cova2_inte_listの要素をそれぞれ2倍する。なぜならまだ重積分の一か所だったから
     sum_coffi2 = 2.0*sum(cova2_list)
-    coffi2= -12*sum_coffi2
+    coffi2= -12.0*sum_coffi2
 
     cova3_inte_list = calculate_cova3_inte(alpha=alpha)
     cova3_coffi_list = cova2_coffi_list

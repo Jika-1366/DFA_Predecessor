@@ -6,7 +6,7 @@ from formulas.a_and_b import calculate_a_and_b, calculate_pc, calculate_qc, calc
 from formulas.covariance1 import calculate_cova1_coffi1, calculate_cova1_inte1
 from formulas.covariance2 import calculate_cova2_inte
 from formulas.covariance3 import calculate_cova3_inte
-
+from graph_alpha_intercept_all_above2 import theoretical_value_above2 as theoretical_value_high_alpha
 # グラフを出力するファイル名を変数として定義
 output_graph_file = 'graph_alpha_intercept_combined.png'
 
@@ -45,22 +45,16 @@ def theoretical_value_low_alpha(alpha):
     sqrt_coffi = np.sqrt(coffi)
     return np.log(sqrt_coffi)
 
-# 計算値を計算する関数 (alpha > 2)
-def theoretical_value_high_alpha(alpha):
-    mu = alpha / (alpha - 1)
-    sigma2 = alpha / (((alpha - 2)**2) * (alpha - 1))
-    coffi = ((1 - (1/(mu**3))) * sigma2 + 1/mu) / 15
-    sqrt_coffi = np.sqrt(coffi)
-    return np.log(sqrt_coffi)
 
-def main():
-    try:
-        # CSVファイルを読み込む
+def prepare_intercept_data():
+            # CSVファイルを読み込む
         data = pd.read_csv('alpha_all_intercepts.csv', header=None)
 
         # 列名を設定
         data.columns = ['alpha'] + [f'intercepts_{i}' for i in range(1, len(data.columns))]
 
+        # alpha > 1 のデータのみを使用
+        data = data[data['alpha'] > 1]
         # 平均とエラーを計算する関数
         def calculate_mean_and_error(row):
             intercepts = row.iloc[1:].dropna().astype(float)
@@ -71,9 +65,23 @@ def main():
         # 平均とエラーを計算
         results = data.apply(calculate_mean_and_error, axis=1)
         data = data.join(results)
+        return data
 
+def main():
+    try:
+        data = prepare_intercept_data()
         # 計算値を追加
-        data['theoretical'] = data['alpha'].apply(lambda alpha: theoretical_value_low_alpha(alpha) if 1 < alpha < 2 else theoretical_value_high_alpha(alpha))
+        def calculate_theoretical(alpha):
+            if alpha < 1:
+                return 0.0  # alpha < 1 の場合は計算しない
+            elif 1 < alpha < 2:
+                return theoretical_value_low_alpha(alpha)
+            elif alpha > 2:
+                return theoretical_value_high_alpha(alpha)
+            else:
+                return 0.0  # alpha が 1 または 2 の場合は計算しない
+
+        data['theoretical'] = data['alpha'].apply(calculate_theoretical)
 
         # グラフを作成
         plt.figure(figsize=(12, 8))
@@ -104,7 +112,10 @@ def main():
         print(f'グラフが {output_graph_file} として保存されました。')
 
     except Exception as e:
-        print(f'エラーが発生しました: {str(e)}')
+        print(f'エラーが発生しました: {str(e)}')  # エラー内容を表示
+        print('エラーが発生した行:')  # エラーが発生した行を示すメッセージ
+        import traceback  # トレースバックをインポート
+        traceback.print_exc()  # エラーのトレースバックを表示
 
 if __name__ == "__main__":
     main()

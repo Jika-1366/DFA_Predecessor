@@ -27,7 +27,7 @@ def prepare_data_above2():
     return data
 
 # 計算値を計算する関数
-def theoretical_value_hand(alpha):
+def theoretical_value_above2(alpha):
     if alpha <= 2:
         return np.nan
     
@@ -44,38 +44,11 @@ def theoretical_value_hand(alpha):
     sqrt_coffi = np.sqrt(coffi)
     return np.log(sqrt_coffi)
 
-def theoretical_value_mathmatica2(alpha):
-    mu = alpha / (alpha - 1)
-    sigma2 = alpha / (((alpha - 2)**2) * (alpha - 1))
-    coffi =  (
-            1 / (15 * mu)
-            - 13 * sigma2 / 30
-            + 0.5 * sigma2
-            - sigma2 / (15 * mu**3)
-    )
-    sqrt_coffi = np.sqrt(coffi)
-    return np.log(sqrt_coffi)
-
-
-def theoretical_value_mathmatica(alpha):
-    mu = alpha / (alpha - 1)
-    coffi = (1/(15*mu))
-    sqrt_coffi = np.sqrt(coffi)
-    return np.log(sqrt_coffi)
-
-
 def main():
     data = prepare_data_above2()
 
     # 計算値
-    data['theoretical'] = data['alpha'].apply(theoretical_value_mathmatica)
-    # 計算値
-    data['theoretical_hand'] = data['alpha'].apply(theoretical_value_hand)
-
-
-    # 直線の式を計算
-    #slope, intercept, r_value, p_value, std_err = stats.linregress(data['alpha'], data['mean_intercept'])
-    #print(f'直線の式: y = {slope:.4f}x + {intercept:.4f}')
+    data['theoretical'] = data['alpha'].apply(theoretical_value_above2)
 
     # グラフを作成
     plt.figure(figsize=(12, 8))
@@ -85,12 +58,6 @@ def main():
 
     # 計算値をプロット（エラーバーなし）
     plt.plot(data['alpha'], data['theoretical'], color='red', label='Theoretical', linewidth=2)
-
-    # 計算値_手計算をプロット（エラーバーなし）
-    plt.plot(data['alpha'], data['theoretical_hand'], color='purple', label='Theoretical_hand', linewidth=2)
-
-    # 直線をプロット
-    #plt.plot(data['alpha'], slope * data['alpha'] + intercept, color='green', linestyle='--', label=f'Fit: y = {slope:.4f}x + {intercept:.4f}')
 
     plt.xlabel('Alpha', fontsize=30)
     plt.ylabel('Mean Intercept', fontsize=30)
@@ -106,10 +73,10 @@ def main():
     plt.yticks(fontsize=16)
 
     # グラフを保存
-    plt.savefig('graph_alpha_intercept_all.png', dpi=300, bbox_inches='tight')
+    plt.savefig('graph_alpha_intercept_above2.png', dpi=300, bbox_inches='tight')
     plt.close()
 
-    print('グラフが graph_alpha_intercept_all.png として保存されました。')
+    print('グラフが graph_alpha_intercept_all_above2.png として保存されました。')
 
 if __name__ == "__main__":
     main()
