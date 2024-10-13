@@ -41,7 +41,12 @@ def main():
     # フィッティング線を描画（横軸の範囲を拡張）
     x_fit = np.linspace(1.1, 2.0, 100)
     y_fit = slope * x_fit + intercept
-    plt.plot(x_fit, y_fit, color='red', label=f'y = {slope:.2f}x + {intercept:.2f}', linewidth=2)
+    plt.plot(x_fit, y_fit, color='purple', label=f'y = {slope:.2f}x + {intercept:.2f}', linewidth=2)
+
+    # 理論値の線を描画
+    x_theory = np.linspace(1.0, 2.0, 100)  # alphaの範囲を1.0から2.0に設定
+    y_theory = 1.5 - 0.5 * x_theory
+    plt.plot(x_theory, y_theory, color='red', linestyle='--', label='y = 1.5 - 0.5x', linewidth=2)
 
     # alpha > 2 の範囲で y = 0.5 の直線を描画
     x_line = np.linspace(2, data['alpha'].max(), 100)
