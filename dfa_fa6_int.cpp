@@ -18,13 +18,13 @@ int main(int argc, char* argv[]) {
     string intercept_output_file = "alpha_intercept.csv";
     string detailed_intercept_output_file = "alpha_all_intercepts.csv";
     double tau_0 = 1.0;
-    int sample_amount = pow(10,6);
-    int number_i = 20;
-    int t_first_l = 16;
-    int t_last_l = 100000;
+    unsigned int sample_amount = pow(10,6);
+    unsigned int number_i = 20;
+    unsigned int t_first_l = 16;
+    unsigned int t_last_l = 100000;
     
     // コマンドライン引数の解析
-    for (int i = 1; i < argc; i += 2) {
+    for (unsigned int i = 1; i < argc; i += 2) {
         string arg = argv[i];
         if (i + 1 < argc) {
             if (arg == "--output") output_file = argv[i+1];
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
         vector<double> slopes;
         vector<double> intercepts;
         vector<vector<double>> all_F_values;
-        vector<int> l_values;
+        vector<unsigned int> l_values;
 
         // alphaを少数第1位で表示するために、snprintfを使用
         char buffer[20];
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
         detailed_intercept_output << fixed << setprecision(1) << alpha;
 
 
-        for (int i = 0; i < number_i; ++i) {
+        for (unsigned int i = 0; i < number_i; ++i) {
             string directory_name = "F_all/alpha-" + alpha_str;
             string F_all_file_name = directory_name + "/" + to_string(i) + ".csv";
             // ディレクトリが存在しない場合は作成
@@ -81,11 +81,11 @@ int main(int argc, char* argv[]) {
             ofstream F_all_output(F_all_file_name);
             
 
-            std::vector<int> walk = generate_power_law_renewal_process(alpha, tau_0, sample_amount);
-            std::tuple<double, double, std::vector<int>, std::vector<double>> result = dfa(walk, alpha, t_first_l, t_last_l);
+            std::vector<unsigned int> walk = generate_power_law_renewal_process(alpha, tau_0, sample_amount);
+            std::tuple<double, double, std::vector<unsigned int>, std::vector<double>> result = dfa(walk, alpha, t_first_l, t_last_l);
             double slope = std::get<0>(result);
             double intercept = std::get<1>(result);
-            std::vector<int> current_l_values = std::get<2>(result);
+            std::vector<unsigned int> current_l_values = std::get<2>(result);
             std::vector<double> current_F_values = std::get<3>(result);
 
             if (!std::isnan(slope) && !std::isnan(intercept)) {
