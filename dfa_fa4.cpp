@@ -18,10 +18,10 @@ int main(int argc, char* argv[]) {
     string output_file = "alpha_slope.csv";
     string detailed_output_file = "alpha_all_slopes.csv";
     double tau_0 = 1.0;
-    int sample_amount = pow(10,6);
-    int number_i = 10;
+    int sample_amount = pow(10,7);
+    int number_i = 5;
     int t_first_l = 16;
-    int t_last_l = 10000;
+    int t_last_l = 1000000;
 
     // コマンドライン引数の解析
     for (int i = 1; i < argc; i += 2) {
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     ofstream output(output_file);
     ofstream detailed_output(detailed_output_file);
 
-    for (double alpha = 0.1; alpha <= 3.5; alpha += 0.1) {
+    for (double alpha = 0.1; alpha <= 3.5; alpha += 0.4) {
         vector<double> slopes;
 
         detailed_output << fixed << setprecision(1) << alpha;
@@ -61,7 +61,13 @@ int main(int argc, char* argv[]) {
             auto duration_generate = duration_cast<seconds>(stop_generate - start_generate);
 
             auto start_dfa = high_resolution_clock::now();
-            double slope = dfa(walk, alpha, t_first_l, t_last_l); 
+            std::tuple<double, double, std::vector<int>, std::vector<double>> result = dfa(walk, alpha, t_first_l, t_last_l);
+            double slope = std::get<0>(result);
+            double intercept = std::get<1>(result);
+            std::vector<int> current_l_values = std::get<2>(result);
+            std::vector<double> current_F_values = std::get<3>(result);
+
+            
             auto stop_dfa = high_resolution_clock::now();
             auto duration_dfa = duration_cast<seconds>(stop_dfa - start_dfa);
 
