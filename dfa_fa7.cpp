@@ -18,10 +18,10 @@ int main(int argc, char* argv[]) {
     string intercept_output_file = "alpha_intercept.csv";
     string detailed_intercept_output_file = "alpha_all_intercepts.csv";
     double tau_0 = 1.0;
-    int sample_amount = pow(10,6);
-    int number_i = 20;
-    int t_first_l = 16;
-    int t_last_l = 100000;
+    int number_of_segments = 20;
+    int number_i = 1;
+    int t_first_i = 4;
+    int t_last_i = 23;
     
     // コマンドライン引数の解析
     for (int i = 1; i < argc; i += 2) {
@@ -32,10 +32,10 @@ int main(int argc, char* argv[]) {
             else if (arg == "--intercept_output") intercept_output_file = argv[i+1];
             else if (arg == "--detailed_intercept_output") detailed_intercept_output_file = argv[i+1];
             else if (arg == "--tau_0") tau_0 = stod(argv[i+1]);
-            else if (arg == "--sample_amount") sample_amount = stoi(argv[i+1]);
+            else if (arg == "--number_of_segments") number_of_segments = stoi(argv[i+1]);
             else if (arg == "--number_i") number_i = stoi(argv[i+1]);
-            else if (arg == "--t_first_l") t_first_l = stoi(argv[i+1]);
-            else if (arg == "--t_last_l") t_last_l = stoi(argv[i+1]);
+            else if (arg == "--t_first_i") t_first_i = stoi(argv[i+1]);
+            else if (arg == "--t_last_i") t_last_i = stoi(argv[i+1]);
         }
     }
 
@@ -45,10 +45,10 @@ int main(int argc, char* argv[]) {
     cout << "intercept_output_file = " << intercept_output_file << endl;
     cout << "detailed_intercept_output_file = " << detailed_intercept_output_file << endl;
     cout << "tau_0 = " << tau_0 << endl;
-    cout << "sample_amount = " << sample_amount << endl;
+    cout << "number_of_segments = " << number_of_segments << endl;
     cout << "number_i = " << number_i << endl;
-    cout << "t_first_l = " << t_first_l << endl;
-    cout << "t_last_l = " << t_last_l << endl;
+    cout << "t_first_i = " << t_first_i << endl;
+    cout << "t_last_i = " << t_last_i << endl;
 
     ofstream output(output_file);
     ofstream detailed_output(detailed_output_file);
@@ -79,14 +79,28 @@ int main(int argc, char* argv[]) {
             string command = "mkdir -p " + directory_name;
             system(command.c_str());
             ofstream F_all_output(F_all_file_name);
-            
 
-            std::vector<double> walk = generate_power_law_point_process(alpha, tau_0, sample_amount);
-            std::tuple<double, double, std::vector<int>, std::vector<double>> result = dfa(walk, alpha, t_first_l, t_last_l);
-            double slope = std::get<0>(result);
-            double intercept = std::get<1>(result);
-            std::vector<int> current_l_values = std::get<2>(result);
-            std::vector<double> current_F_values = std::get<3>(result);
+            std::vector<std::pair<int, double>> l_F_pairs = calculate_F_values(
+                                alpha, tau_0, number_of_segments, 
+                                t_first_i, t_last_i);
+
+            std::vector<double> log_F; std::vector<double> log_l; std::vector<int> current_l_values; std::vector<double> current_F_values;
+            for (const auto& p : l_F_pairs) {
+                current_l_values.push_back(p.first);
+                current_F_values.push_back(p.second);
+                if (p.first >= pow(10, 5)) {
+                    log_l.push_back(log(p.first));
+                    log_F.push_back(log(p.second));
+                }
+                F_all_output << p.first << "," << setprecision(15) << p.second << endl;
+            }
+            F_all_output.close();
+
+            // log(F)とlog(l)に対して線形フィッティングを行い、傾きを取得
+            tuple<double, double, double> result = find_best_fit(log_F, log_l);
+            double slope = get<0>(result);
+            double intercept = get<1>(result);
+
 
             if (!std::isnan(slope) && !std::isnan(intercept)) {
                 slopes.push_back(slope);
