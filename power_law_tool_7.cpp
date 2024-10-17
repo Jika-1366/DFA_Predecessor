@@ -76,7 +76,15 @@ std::pair<std::vector<double>, double> generate_power_law_point_process(double a
 
     // 各時刻での累積イベント数を計算
     std::vector<double> event_counts = count_events_per_unit_time(event_times, sample_amount);
-
+    
+    /////////////////////////////////////////////
+    //ofstream ofs_event_counts("event_counts.txt");
+    //for (int i = 0; i < event_counts.size(); ++i) {
+        //ofs_event_counts << event_counts[i] << endl;
+    //}
+    //ofstream ofs_exceeded_waiting_time_next("exceeded_waiting_time_next.txt");
+    //ofs_exceeded_waiting_time_next << exceeded_waiting_time_next << endl;
+    ////////////////////////////////////////////////
     return std::make_pair(event_counts, exceeded_waiting_time_next);
 }
 
@@ -164,76 +172,12 @@ std::tuple<double, double, double> find_best_fit(const std::vector<double>& y, c
     return std::make_tuple(slope, intercept, residual_sum_squares);
 }
 
-// Find the parameters that minimize the residual.
-tuple<double, double, double> old_find_best_fit(const vector<double>& y) {
-    int n = y.size();
-    vector<int> x(n);
-    iota(x.begin(), x.end(), 1);  // x = 1, 2, ..., n
 
-    double best_slope = 0;
-    double best_intercept = 0;
-    double best_error = numeric_limits<double>::infinity();
-
-    // Search range and step size
-    const double slope_range = 10.0;
-    const double intercept_range = 1000.0;
-    const double slope_step = 0.01;
-    const double intercept_step = 0.1;
-    for (double slope = -slope_range; slope <= slope_range; slope += slope_step) {
-        for (double intercept = -intercept_range; intercept <= intercept_range; intercept += intercept_step) {
-            double error = 0;
-
-            for (int i = 0; i < n; ++i) {
-                double predicted = slope * x[i] + intercept;
-                double residual = y[i] - predicted;
-                error += residual * residual;
-            }
-
-            if (error < best_error) {
-                best_error = error;
-                best_slope = slope;
-                best_intercept = intercept;
-            }
-        }
-    }
-
-    return make_tuple(best_slope, best_intercept, best_error);
-}
-
-// Function to divide data
-vector<vector<double>> generate_segments(const vector<double>& data, int scale) {
-    vector<vector<double>> segments;
-    int num_segments = data.size() / scale;
-    for (int i = 0; i < num_segments; ++i) {
-        vector<double> segment(data.begin() + i * scale, data.begin() + ((i + 1) * scale));
-        segments.push_back(segment);
-    }
-    return segments;
-}
-
-// Function to divide data
-vector<vector<double>> generate_segments_2(const vector<double>& data, int scale) {
-    vector<vector<double>> segments;
-    int num_segments = data.size() / scale;
-    for (int i = 0; i < num_segments; ++i) {
-        vector<double> segment(data.begin() + i * scale, data.begin() + (i + 1) * scale);
-        segments.push_back(segment);
-    }
-    // Handling when not divisible
-    if (data.size() % scale != 0) {
-        vector<double> segment(data.begin() + num_segments * scale, data.end());
-        segments.push_back(segment);
-    }
-    return segments;
-}
 
 
 double get_sum_squared_residuals(std::vector<double> walk){
     tuple<double, double, double> result = find_best_fit(walk);
-    double slope = get<0>(result);
-    double intercept = get<1>(result);
     double sum_variance = get<2>(result);
-
     return sum_variance;
 }
 
@@ -250,113 +194,13 @@ std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_
             exceeded_waiting_time = walk_result.second;
             sum_squared_residuals += get_sum_squared_residuals(walk);
         }
-        double F2 = sum_squared_residuals / number_of_segments;
-        double F = sqrt(F2);
+        double F2 = sum_squared_residuals / (number_of_segments*l);
+        double F = pow(F2, 0.5);
         l_F_pairs.push_back(std::make_pair(l, F));
+    }
+    for (const auto& pair : l_F_pairs) {
+        std::cout << "l: " << pair.first << ", F: " << pair.second << std::endl;
     }
     return l_F_pairs;
 }
 
-std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<double> RW_list, double alpha, int t_first_l, int t_last_l) {
-    // alphaを少数第1位で表示するために、snprintfを使用します。
-    char buffer[20];
-    snprintf(buffer, sizeof(buffer), "%.1f", alpha);
-    string base_name = buffer;
-    
-    //string input_path = base_name + ".csv";
-    string output_path = "F/" + base_name + ".csv";
-    int first_l = t_first_l;
-    int last_l = t_last_l;
-    int thres_rem_to_ignore = 1; //threshold remainder to ignore
-
-    // Adjust data
-    // RWの開始を原点スタート(0スタート)にする、平行移動。
-    double start_point = RW_list.front();
-    transform(RW_list.begin(), RW_list.end(), RW_list.begin(), [start_point](double y) { return y - start_point; });
-
-    
-    int N = RW_list.size();
-    vector<pair<int, double>> records_l_F;
-    int l;
-    for (l = first_l ; l < last_l ; ++l) {
-        if (N % l >= thres_rem_to_ignore) continue;
-
-        int num_segments = N / l;
-        int N_used = num_segments * l; // Number of data to use
-        vector<vector<double>> segments = generate_segments(RW_list, l);
-        ///////////////////////////////////////////////assert statement
-        // Calculate the total number of elements in segments
-        int total_elements = 0;
-        for (const vector<double>& segment : segments) {
-            total_elements += segment.size();
-        }
-        // Check if the number of elements in segments matches N_used
-        if (total_elements != N_used) {
-            cerr << "Error: The number of elements in segments does not match N_used. Number of elements in segments: " << total_elements << ", N_used: " << N_used << endl;
-            // エラー時は意味のない値を返す
-            return std::make_tuple(
-                std::numeric_limits<double>::quiet_NaN(),  // slope
-                std::numeric_limits<double>::quiet_NaN(),  // intercept
-                vector<int>(),                             // empty l_values
-                vector<double>()                           // empty F_values
-            );
-        }
-        /////////////////////////////////////////////////////
-
-        double sum_sum_variance = 0.0;
-        for (vector<double>& segment : segments) {
-            tuple<double, double, double> result = find_best_fit(segment);
-            double slope = get<0>(result);
-            double intercept = get<1>(result);
-            double sum_variance = get<2>(result);
-            sum_sum_variance += sum_variance;
-        }
-        // Record
-        double F = pow(sum_sum_variance / N_used, 0.5);
-        records_l_F.push_back(make_pair(l, F));
-    }
-    
-    // Display recors_l_F with cout
-    //for (const pair<int, double>& record : records_l_F) {
-        //cout << "l: " << record.first << ", F: " << record.second << endl;
-    //}
-    //対数にする前に保存。
-    ofstream output(output_path);
-    for (size_t i = 0; i < records_l_F.size(); ++i) {
-        output << records_l_F[i].first << "," << records_l_F[i].second << endl;
-    }
-    output.close();
-
-
-    vector<int> l_values_all;
-    vector<double> F_values_all;
-    for (const auto& record : records_l_F) {
-        l_values_all.push_back(record.first);
-        F_values_all.push_back(record.second);
-    }
-    
-    //pairのベクトルにしてしまったので、それぞれを分ける。
-    vector<int> l_values;
-    vector<double> F_values;
-    for (const auto& record : records_l_F) {
-        if (record.first >= pow(10,5)){
-            l_values.push_back(record.first);
-            F_values.push_back(record.second);
-        }
-    }
-
-    // records_l_Fからlog(l)とlog(F)の対数を作成
-    vector<double> log_l(l_values.size());
-    vector<double> log_F(l_values.size());    
-    for (size_t i = 0; i < l_values.size(); ++i) {
-        log_l[i] = log(l_values[i]);
-        log_F[i] = log(F_values[i]);
-    }
-
-    // log(F)とlog(l)に対して線形フィッティングを行い、傾きを取得
-    tuple<double, double, double> result = find_best_fit(log_F, log_l);
-    double slope = get<0>(result);
-    double intercept = get<1>(result);
-
-    return std::make_tuple(slope, intercept, l_values_all, F_values_all);
-}

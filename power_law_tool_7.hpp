@@ -12,9 +12,9 @@
 #include <tuple>
 
 std::pair<std::vector<double>, double> generate_power_law_point_process(double alpha,
-                                                    double tau_0 = 1.0,
-                                                    int sample_amount = 100000,
-                                                    double exceeded_waiting_time_parameter = 0.0
+                                                    double tau_0,
+                                                    int sample_amount,
+                                                    double exceeded_waiting_time_parameter
                                                     );
 double get_sum_squared_residuals(std::vector<double> walk);
 
