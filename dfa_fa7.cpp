@@ -20,8 +20,8 @@ int main(int argc, char* argv[]) {
     double tau_0 = 1.0;
     int number_of_segments = 20;
     int number_i = 1;
-    int t_first_i = 4;
-    int t_last_i = 23;
+    int t_first_i = 23;
+    int t_last_i = 27;
     
     // コマンドライン引数の解析
     for (int i = 1; i < argc; i += 2) {
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     ofstream intercept_output(intercept_output_file);
     ofstream detailed_intercept_output(detailed_intercept_output_file);
 
-    for (double alpha = 3.0; alpha <= 4.001; alpha += 0.3) {
+    for (double alpha = 1.1; alpha < 1.99; alpha += 0.1) {
         vector<double> slopes;
         vector<double> intercepts;
         vector<vector<double>> all_F_values;

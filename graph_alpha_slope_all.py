@@ -60,7 +60,7 @@ def main():
     plt.grid(True)
 
     # グラフの軸範囲を設定
-    plt.xlim(0.0, plt.xlim()[1])  
+    #plt.xlim(0.0, plt.xlim()[1])  
     plt.ylim(0.4, 1.1)  # y軸の最大値を1.1に設定
 
     # 軸のティックラベルのフォントサイズを大きくする
