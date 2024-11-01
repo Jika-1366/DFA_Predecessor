@@ -140,7 +140,6 @@ std::tuple<double, double, double> find_best_fit(const std::vector<double>& y, c
         throw std::invalid_argument("x and y must have the same size");
     } else {
         x_values = x;  // 既存のxをコピー
-        //cout << "コピーしました" << endl;
     }
 
     // 平均を計算
@@ -162,6 +161,40 @@ std::tuple<double, double, double> find_best_fit(const std::vector<double>& y, c
     double slope = numerator / denominator;
     double intercept = y_mean - slope * x_mean;
 
+    if (std::isnan(slope) || std::isnan(intercept)) {
+        // 現在時刻を取得
+        time_t timer;
+        time(&timer);
+        struct tm *localTime = localtime(&timer);
+
+        // ファイル名を作成
+        char buffer[80];
+        strftime(buffer, 80, "error_reports/error_report_%Y%m%d_%H%M%S.txt", localTime);
+        string error_report_filename(buffer);
+
+        // エラーレポートをファイルに保存
+        ofstream error_report(error_report_filename);
+        error_report << "Error: NaN value detected in find_best_fit." << endl;
+        error_report << "n: " << n << endl;
+        error_report << "x_mean: " << x_mean << endl;
+        error_report << "y_mean: " << y_mean << endl;
+        error_report << "numerator: " << numerator << endl;
+        error_report << "denominator: " << denominator << endl;
+        error_report << "x_values: ";
+        for (double val : x_values) error_report << val << " ";
+        error_report << endl;
+        error_report << "y_values: ";
+        for (double val : y) error_report << val << " ";
+        error_report << endl;
+        error_report.close();
+
+       // デバッグ用に標準出力にもエラーメッセージを出力
+        cerr << "Error: NaN value detected in find_best_fit. Check error_report.txt for details." << endl;
+
+
+    }
+
+
     // 残差の二乗の合計を計算
     double residual_sum_squares = 0.0;
     for (int i = 0; i < n; ++i) {
@@ -182,10 +215,10 @@ double get_sum_squared_residuals(std::vector<double> walk){
 }
 
 
-std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_0, int number_of_segments, int first_i, int last_i) {
+std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_0, int number_of_segments, int first_i, int last_i, float l_base) {
     std::vector<std::pair<int, double>> l_F_pairs;
     for (int i = first_i; i <= last_i; ++i) {
-        int l = static_cast<int>(pow(2, i));
+        int l = static_cast<int>(pow(l_base, i));
         double exceeded_waiting_time = 0.0;
         double sum_squared_residuals = 0.0;
         for (int j = 0; j < number_of_segments; ++j) {
@@ -197,7 +230,9 @@ std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_
         double F2 = sum_squared_residuals / (number_of_segments*l);
         double F = pow(F2, 0.5);
         l_F_pairs.push_back(std::make_pair(l, F));
+        cout << "セグメント " <<  number_of_segments << "回 完了 (alpha=" << alpha << ", l=" << l << ")" << endl;
     }
+
     for (const auto& pair : l_F_pairs) {
         std::cout << "l: " << pair.first << ", F: " << pair.second << std::endl;
     }

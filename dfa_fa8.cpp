@@ -1,4 +1,4 @@
-//alpha1.0~2.0に全てを懸けて、F_allも吐き出すプログラム
+//なぜ直線フィッティングにより、Nanが吐き出されるのか調べるためのプログラム
 
 #include <iostream>
 #include <fstream>
@@ -53,13 +53,6 @@ int main(int argc, char* argv[]) {
     cout << "t_last_i = " << t_last_i << endl;
     cout << "l_base = " << l_base << endl; // l_baseの値を表示
 
-    if (pow(l_base, t_last_i) < pow(10, 5)) {
-        std::cerr << "\n*******************************************************************************" << std::endl;
-        std::cerr << "警告: 最大のセグメントが小さいため、結果が安定しない可能性が高いです。" << std::endl;
-        std::cerr << "l_baseの値を大きくするか、t_last_iの値を大きくすることを検討してください。" << std::endl;
-        std::cerr << "*******************************************************************************\n" << std::endl;
-    }
-
     ofstream output(output_file);
     ofstream detailed_output(detailed_output_file);
     ofstream intercept_output(intercept_output_file);
@@ -112,22 +105,27 @@ int main(int argc, char* argv[]) {
             double intercept = get<1>(result);
 
 
-            if (!std::isnan(slope) && !std::isnan(intercept)) {
+            if (std::isnan(slope)) {
+                detailed_output << ",NaN (slope)"; // slopeがNaNの場合
+                detailed_intercept_output << ","; // interceptの値は出力しない
+                cout << "警告: slopeがNaNです。" << endl;
+            } else if (std::isnan(intercept)) {
+                detailed_output << ","; // slopeの値は出力しない
+                detailed_intercept_output << ",NaN (intercept)"; // interceptがNaNの場合
+                cout << "警告: interceptがNaNです。" << endl;
+            } else {
                 slopes.push_back(slope);
                 intercepts.push_back(intercept);
                 all_F_values.push_back(current_F_values);
-                
+
                 if (i == 0) {  // 最初のイテレーションでl_valuesを保存
                     l_values = current_l_values;
                 }
 
                 detailed_output << "," << setprecision(15) << slope;
                 detailed_intercept_output << "," << setprecision(15) << intercept;
-            } else {
-                detailed_output << ",NaN";
-                detailed_intercept_output << ",NaN";
-                cout << "警告: NaNのslopeまたはinterceptが検出されました。" << endl;
             }
+// ... existing code ...
             for (size_t j = 0; j < current_l_values.size(); ++j) {
                 F_all_output << current_l_values[j] << "," << setprecision(15) << current_F_values[j] << endl;
             }

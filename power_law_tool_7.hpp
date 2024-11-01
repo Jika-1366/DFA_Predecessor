@@ -20,7 +20,7 @@ double get_sum_squared_residuals(std::vector<double> walk);
 
 std::vector<std::pair<int, double>> calculate_F_values(double alpha, 
                                     double tau_0, int number_of_segments, 
-                                    int first_i, int last_i);
+                                    int first_i, int last_i, float l_base);
 
 std::tuple<double, double, double> find_best_fit(const std::vector<double>& y, const std::vector<double>& x = std::vector<double>());
 

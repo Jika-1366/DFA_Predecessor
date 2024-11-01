@@ -11,7 +11,7 @@ import glob
 
 # beki_walk_alpha_*.csvファイルを取得
 #csv_files = glob.glob("l_F_beki_walk_alpha_*.csv")
-csv_files = sorted(glob.glob("F/*.csv"))
+csv_files = sorted(glob.glob("avg_F/*.csv"))
 
 # FigureとAxesオブジェクトを作成
 fig, ax = plt.subplots(figsize=(10, 6))
@@ -55,6 +55,7 @@ for i, csv_file in enumerate(csv_files):
 
     # フィッティングの式をグラフに表示
     #ax.text(0.1, 0.8, f'F = {np.exp(intercept):.2f} * l^{slope:.2f}', transform=plt.gca().transAxes)
+    
 
 # グラフのタイトル、軸ラベル、凡例を設定
 plt.title(f"Log-log graph and linear fitting", fontsize=18) 
@@ -64,7 +65,7 @@ plt.legend(fontsize=14)
 
 
 # 横軸の範囲を設定
-plt.xlim([1.0, max(l)])
+plt.xlim([min(l), max(l)])
 # グラフのタイトルを日本語に変更
 plt.title("loglog")
 
