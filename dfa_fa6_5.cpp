@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
     string detailed_output_file = "alpha_all_slopes.csv";
     string intercept_output_file = "alpha_intercept.csv";
     string detailed_intercept_output_file = "alpha_all_intercepts.csv";
-    string all_F_output_file = "alpha_all_F.csv"; // 新しいファイル
+    string all_F_output_file = "alpha_not_l_all_F.csv"; // 新しいファイル
     double tau_0 = 1.0;
     int sample_amount = pow(10,8);
     int number_i = 100;
