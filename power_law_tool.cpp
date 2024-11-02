@@ -246,6 +246,7 @@ vector<vector<double>> generate_segments_2(const vector<double>& data, int scale
 
 
 std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<double> RW_list, double alpha, int t_first_l, int t_last_l) {
+    cout << "dfa関数開始" << endl;
     // alphaを少数第1位で表示するために、snprintfを使用します。
     char buffer[20];
     snprintf(buffer, sizeof(buffer), "%.1f", alpha);
@@ -266,7 +267,10 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<dou
     int N = RW_list.size();
     vector<pair<int, double>> records_l_F;
     int l;
+    
     for (l = first_l ; l < last_l ; ++l) {
+        cout << "l: " << l << endl;
+        cout << "N: " << N << endl;
         if (N % l >= thres_rem_to_ignore) continue;
 
         int num_segments = N / l;
@@ -315,6 +319,9 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<dou
     }
     output.close();
 
+    for (const auto& record : records_l_F) {
+        std::cout << "l: " << record.first << ", F: " << record.second << std::endl;
+    }
 
     vector<int> l_values_all;
     vector<double> F_values_all;

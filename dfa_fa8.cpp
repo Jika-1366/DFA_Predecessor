@@ -98,7 +98,8 @@ int main(int argc, char* argv[]) {
                 F_all_output << p.first << "," << setprecision(15) << p.second << endl;
             }
             F_all_output.close();
-
+            
+            
             // log(F)とlog(l)に対して線形フィッティングを行い、傾きを取得
             tuple<double, double, double> result = find_best_fit(log_F, log_l);
             double slope = get<0>(result);
