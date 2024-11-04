@@ -269,8 +269,6 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<dou
     int l;
     
     for (l = first_l ; l < last_l ; ++l) {
-        cout << "l: " << l << endl;
-        cout << "N: " << N << endl;
         if (N % l >= thres_rem_to_ignore) continue;
 
         int num_segments = N / l;
