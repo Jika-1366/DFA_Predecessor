@@ -190,8 +190,6 @@ std::tuple<double, double, double> find_best_fit(const std::vector<double>& y, c
 
        // デバッグ用に標準出力にもエラーメッセージを出力
         cerr << "Error: NaN value detected in find_best_fit. Check error_report.txt for details." << endl;
-
-
     }
 
 
@@ -227,8 +225,83 @@ std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_
             exceeded_waiting_time = walk_result.second;
             sum_squared_residuals += get_sum_squared_residuals(walk);
         }
+        
+        // F2の計算前にチェック
+        if (number_of_segments <= 0 || l <= 0) {
+            // 現在時刻を取得
+            time_t timer;
+            time(&timer);
+            struct tm *localTime = localtime(&timer);
+
+            // ファイル名を作成
+            char buffer[80];
+            strftime(buffer, 80, "error_reports/error_report_%Y%m%d_%H%M%S.txt", localTime);
+            string error_report_filename(buffer);
+
+            // エラーレポートをファイルに保存
+            ofstream error_report(error_report_filename);
+            error_report << "Error: Invalid values for F2 calculation." << endl;
+            error_report << "number_of_segments: " << number_of_segments << endl;
+            error_report << "l: " << l << endl;
+            error_report << "sum_squared_residuals: " << sum_squared_residuals << endl;
+            error_report.close();
+
+            cerr << "Error: Invalid values for F2 calculation. Check error_report.txt for details." << endl;
+            continue;  // このイテレーションをスキップ
+        }
+
         double F2 = sum_squared_residuals / (number_of_segments*l);
+        
+        // F2が負またはNaNの場合をチェック
+        if (F2 < 0 || std::isnan(F2)) {
+            // 現在時刻を取得
+            time_t timer;
+            time(&timer);
+            struct tm *localTime = localtime(&timer);
+
+            // ファイル名を作成
+            char buffer[80];
+            strftime(buffer, 80, "error_reports/error_report_%Y%m%d_%H%M%S.txt", localTime);
+            string error_report_filename(buffer);
+
+            // エラーレポートをファイルに保存
+            ofstream error_report(error_report_filename);
+            error_report << "Error: Invalid F2 value." << endl;
+            error_report << "F2: " << F2 << endl;
+            error_report << "sum_squared_residuals: " << sum_squared_residuals << endl;
+            error_report << "number_of_segments: " << number_of_segments << endl;
+            error_report << "l: " << l << endl;
+            error_report.close();
+
+            cerr << "Error: Invalid F2 value. Check error_report.txt for details." << endl;
+            continue;  // このイテレーションをスキップ
+        }
+
         double F = pow(F2, 0.5);
+        
+        // Fの値をチェック
+        if (std::isnan(F)) {
+            // 現在時刻を取得
+            time_t timer;
+            time(&timer);
+            struct tm *localTime = localtime(&timer);
+
+            // ファイル名を作成
+            char buffer[80];
+            strftime(buffer, 80, "error_reports/error_report_%Y%m%d_%H%M%S.txt", localTime);
+            string error_report_filename(buffer);
+
+            // エラーレポートをファイルに保存
+            ofstream error_report(error_report_filename);
+            error_report << "Error: NaN value detected in F calculation." << endl;
+            error_report << "F2: " << F2 << endl;
+            error_report << "F: " << F << endl;
+            error_report.close();
+
+            cerr << "Error: NaN value detected in F calculation. Check error_report.txt for details." << endl;
+            continue;  // このイテレーションをスキップ
+        }
+
         l_F_pairs.push_back(std::make_pair(l, F));
         cout << "セグメント " <<  number_of_segments << "回 完了 (alpha=" << alpha << ", l=" << l << ")" << endl;
     }
@@ -238,4 +311,3 @@ std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_
     }
     return l_F_pairs;
 }
-
