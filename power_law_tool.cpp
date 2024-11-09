@@ -86,7 +86,7 @@ std::vector<double> count_events_per_unit_time(const std::vector<double>& event_
 }
 
 // 更新過程をシミュレーションし、各時刻でのイベント数を返す関数
-std::vector<double> generate_power_law_point_process(double alpha, double tau_0, int sample_amount) {
+std::vector<double> generate_power_law_point_process1(double alpha, double tau_0, int sample_amount) {
     // 乱数シードの初期化（必要に応じてシード値を固定してください）
     srand(static_cast<unsigned int>(time(NULL)));
 
@@ -97,6 +97,29 @@ std::vector<double> generate_power_law_point_process(double alpha, double tau_0,
     std::vector<double> event_counts = count_events_per_unit_time(event_times, sample_amount);
 
     return event_counts;
+}
+
+
+// 更新過程をシミュレーションし、各時刻でのイベント数を返す関数
+std::vector<double> generate_power_law_point_process2(double alpha, double tau_0, int sample_amount) {
+    // 乱数シードの初期化（必要に応じてシード値を固定してください）
+    srand(static_cast<unsigned int>(time(NULL)));
+    sample_amount = 2*sample_amount;
+    // イベント時刻のシミュレーション
+    std::vector<double> event_times = simulate_event_times(tau_0, alpha, sample_amount);
+
+    // 各時刻での累積イベント数を計算
+    std::vector<double> event_counts = count_events_per_unit_time(event_times, sample_amount);
+
+    // event_countsの長さを半分にし、後半を使用
+    std::vector<double> half_event_counts(event_counts.begin() + sample_amount/2, event_counts.end());
+    return half_event_counts;
+}
+
+
+// generate_power_law_point_process1を呼び出す関数
+std::vector<double> generate_power_law_point_process(double alpha, double tau_0, int sample_amount) {
+    return generate_power_law_point_process1(alpha, tau_0, sample_amount);
 }
 
 std::vector<double> incorrect_generate_power_law_point_process(double alpha, double tau_0, int sample_amount) {

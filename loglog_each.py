@@ -39,7 +39,8 @@ def calcualte_F_calc_alpha_above2(l, alpha):
     c1 = (1+2*alpha-alpha**2)/(2*alpha*(alpha-2))
 
     coffi_alpha_above2 =  (1+2*c1 )/ (15 * mu)
-    
+    #coffi_alpha_above2 =  (1+c1 )/ (15 * mu)
+    #coffi_alpha_above2 = 1/(15*mu)
     F2 =  (
         coffi_alpha_above2*l
     )
@@ -144,12 +145,21 @@ def main():
             F_calc_complex = calculate_F_calc_detailed(l, alpha)
             ax.loglog(l, F_calc_complex, linestyle='-', color='green', linewidth=1.5,
                       label=f'Calc Complex: F = {np.sqrt(main_coffi):.3f}l^({(3-alpha)/2}) + {np.sqrt(second_coffi):.3f}*l^({2-alpha:.3f})')
-        elif alpha > 2:
+        elif alpha >= 2.0 and alpha<=2.09:
+            alpha = 2.01
             F_calc_above2 = calcualte_F_calc_alpha_above2(l, alpha)
             ax.loglog(l, F_calc_above2, linestyle='-', color='red', linewidth=1.5,
                       label=f'Calc (α > 2): F = {coffi_alpha_above2:.3f}*l^0.5')
             ax.set_ylim([min(min(F), min(F_calc_above2), min(F_dfa3)), 
                          max(max(F), max(F_calc_above2), max(F_dfa3))])
+
+        elif alpha > 2.02:
+            F_calc_above2 = calcualte_F_calc_alpha_above2(l, alpha)
+            ax.loglog(l, F_calc_above2, linestyle='-', color='red', linewidth=1.5,
+                      label=f'Calc (α > 2): F = {coffi_alpha_above2:.3f}*l^0.5')
+            ax.set_ylim([min(min(F), min(F_calc_above2), min(F_dfa3)), 
+                         max(max(F), max(F_calc_above2), max(F_dfa3))])
+
         color_index += 1
 
         ax.set_title(f"Log-log graph (α = {alpha:.1f})", fontsize=18)

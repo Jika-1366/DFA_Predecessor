@@ -33,3 +33,9 @@ plt.rcParams['font.family'] = 'DejaVu Sans'
 # Display the graph
 plt.tight_layout()
 plt.show()
+
+
+# csvのような形式で、1列目にl, 2列目に平均のFをprint
+for l, f in zip(mean_F.index, mean_F):
+    print(f"{l},{f}")
+
