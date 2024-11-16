@@ -16,7 +16,7 @@ std::pair<std::vector<double>, double> generate_power_law_point_process(double a
                                                     int sample_amount,
                                                     double exceeded_waiting_time_parameter
                                                     );
-double get_sum_squared_residuals(std::vector<double> walk);
+double get_avg_squared_residuals(std::vector<double> walk);
 
 std::vector<std::pair<int, double>> calculate_F_values(double alpha, 
                                     double tau_0, int number_of_segments, 

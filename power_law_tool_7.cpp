@@ -13,6 +13,10 @@
 #include <queue> // 追加: queueを使うために必要
 #include <tuple> 
 
+#include <execution>
+#include <numeric>
+#include <vector>
+
 #include "power_law_tool_7.hpp"
 
 using namespace std;
@@ -123,6 +127,34 @@ std::vector<double> incorrect_generate_power_law_point_process(double alpha, dou
     return N;
 }    
 
+double get_directly_residuls2(const std::vector<double>& y) {
+    int n = y.size();
+    if (n == 0) {
+        return 0.0; // または適切なエラー処理
+    }
+
+    //double mean = std::reduce(std::execution::par, y.begin(), y.end(), 0.0) / y.size();
+    double sum = 0.0;
+    for (double value : y) {
+        sum += value;
+    }
+    double mean = sum / n;
+
+    long double sq_sum = 0.0L;
+    long double weighted_sum = 0.0L;
+    for (size_t i = 0; i < y.size(); ++i) {
+        double value = y[i];
+        sq_sum += value * value;
+        weighted_sum += (i+1) * value;
+    }
+
+    long double v2_y = (sq_sum / n) - mean*mean;
+    long double second_term = (12.0*(n+1)/(n-1))*pow((weighted_sum/n/(n+1) - mean/2),2);
+
+    return v2_y - second_term;
+
+}
+
 
 
 // 傾き、切片、残差の二乗の合計を返す。yは必須だが、xは渡しても渡さなくともいい。
@@ -205,12 +237,11 @@ std::tuple<double, double, double> find_best_fit(const std::vector<double>& y, c
 
 
 
-
-double get_sum_squared_residuals(std::vector<double> walk){
-    tuple<double, double, double> result = find_best_fit(walk);
-    double sum_variance = get<2>(result);
-    return sum_variance;
+double get_avg_squared_residuals(std::vector<double> walk){
+    double avg_squared_residual = get_directly_residuls2(walk);
+    return avg_squared_residual;
 }
+
 
 
 std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_0, int number_of_segments, int first_i, int last_i, float l_base) {
@@ -223,7 +254,7 @@ std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_
             std::pair<std::vector<double>, double> walk_result = generate_power_law_point_process(alpha, tau_0, l, exceeded_waiting_time);
             std::vector<double> walk = walk_result.first;
             exceeded_waiting_time = walk_result.second;
-            sum_squared_residuals += get_sum_squared_residuals(walk);
+            sum_squared_residuals += get_avg_squared_residuals(walk);
         }
         
         // F2の計算前にチェック
@@ -250,7 +281,7 @@ std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_
             continue;  // このイテレーションをスキップ
         }
 
-        double F2 = sum_squared_residuals / (number_of_segments*l);
+        double F2 = sum_squared_residuals / (number_of_segments);
         
         // F2が負またはNaNの場合をチェック
         if (F2 < 0 || std::isnan(F2)) {

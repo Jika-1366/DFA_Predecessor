@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+
 #include <vector>
 #include <string>
 #include <cmath>
@@ -12,6 +13,10 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+    std::cout << "Size of double: " << sizeof(double) << " bytes\n";
+    std::cout << "Size of long double: " << sizeof(long double) << " bytes\n";
+    
+    
     // デフォルト値の設定
     string output_file = "alpha_slope.csv";
     string detailed_output_file = "alpha_all_slopes.csv";

@@ -7,11 +7,15 @@
 #include <cstdlib>
 #include <tuple>
 #include <stdexcept>
+
 #include <random>
 #include <vector>
 #include <cmath>
 #include <queue> // 追加: queueを使うために必要
 #include <tuple> 
+#include <execution>
+#include <numeric>
+#include <vector>
 
 #include "power_law_tool.hpp"
 
