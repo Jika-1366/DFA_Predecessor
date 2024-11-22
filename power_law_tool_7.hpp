@@ -22,6 +22,7 @@ std::vector<std::pair<int, double>> calculate_F_values(double alpha,
                                     double tau_0, int number_of_segments, 
                                     int first_i, int last_i, float l_base);
 
+
 std::tuple<double, double, double> find_best_fit(const std::vector<double>& y, const std::vector<double>& x = std::vector<double>());
 
 std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(std::vector<double> RW_list, double alpha = 0.0, int first_l = 4, int t_last_l= 10000);

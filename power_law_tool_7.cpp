@@ -10,7 +10,7 @@
 #include <random>
 #include <vector>
 #include <cmath>
-#include <queue> // 追加: queueを使うために必要
+#include <queue>
 #include <tuple> 
 
 #include <execution>
@@ -18,6 +18,9 @@
 #include <vector>
 
 #include "power_law_tool_7.hpp"
+
+#include <ctime>
+#include <iomanip>
 
 using namespace std;
 
@@ -80,7 +83,6 @@ std::pair<std::vector<double>, double> generate_power_law_point_process(double a
 
     // 各時刻での累積イベント数を計算
     std::vector<double> event_counts = count_events_per_unit_time(event_times, sample_amount);
-    
     /////////////////////////////////////////////
     //ofstream ofs_event_counts("event_counts.txt");
     //for (int i = 0; i < event_counts.size(); ++i) {
@@ -89,6 +91,7 @@ std::pair<std::vector<double>, double> generate_power_law_point_process(double a
     //ofstream ofs_exceeded_waiting_time_next("exceeded_waiting_time_next.txt");
     //ofs_exceeded_waiting_time_next << exceeded_waiting_time_next << endl;
     ////////////////////////////////////////////////
+    
     return std::make_pair(event_counts, exceeded_waiting_time_next);
 }
 
@@ -152,7 +155,6 @@ double get_directly_residuls2(const std::vector<double>& y) {
     long double second_term = (12.0*(n+1)/(n-1))*pow((weighted_sum/n/(n+1) - mean/2),2);
 
     return v2_y - second_term;
-
 }
 
 
@@ -221,7 +223,9 @@ std::tuple<double, double, double> find_best_fit(const std::vector<double>& y, c
         error_report.close();
 
        // デバッグ用に標準出力にもエラーメッセージを出力
-        cerr << "Error: NaN value detected in find_best_fit. Check error_report.txt for details." << endl;
+        time_t now = time(0);
+        tm* localtm = localtime(&now);
+        cerr << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << "Error: NaN value detected in find_best_fit. Check error_report.txt for details." << endl;
     }
 
 
@@ -242,18 +246,33 @@ double get_avg_squared_residuals(std::vector<double> walk){
     return avg_squared_residual;
 }
 
+double get_exceeded_waiting_time(double alpha, double tau_0, int number_of_segments, int l, double exceeded_waiting_time) {
+    double current_exceeded_waiting_time = exceeded_waiting_time;
+    
+    for (int j = 0; j < number_of_segments*100; ++j) {
+        std::pair<std::vector<double>, double> walk_result = generate_power_law_point_process(alpha, tau_0, l, current_exceeded_waiting_time);
+        std::vector<double> walk = walk_result.first;
+        current_exceeded_waiting_time = walk_result.second;
+    }
+    
+    time_t now = time(0);
+    tm* localtm = localtime(&now);
+    cout << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << number_of_segments * 100 << "回 系をEvolve the system over time。空回し (alpha=" << alpha << ", l=" << l << ")" << endl;
+    return current_exceeded_waiting_time;
+}
 
 
 std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_0, int number_of_segments, int first_i, int last_i, float l_base) {
     std::vector<std::pair<int, double>> l_F_pairs;
     for (int i = first_i; i <= last_i; ++i) {
         int l = static_cast<int>(pow(l_base, i));
-        double exceeded_waiting_time = 0.0;
+        double current_exceeded_waiting_time = 0.0;
         double sum_squared_residuals = 0.0;
+        get_exceeded_waiting_time(alpha, tau_0, number_of_segments, l, current_exceeded_waiting_time);
         for (int j = 0; j < number_of_segments; ++j) {
-            std::pair<std::vector<double>, double> walk_result = generate_power_law_point_process(alpha, tau_0, l, exceeded_waiting_time);
+            std::pair<std::vector<double>, double> walk_result = generate_power_law_point_process(alpha, tau_0, l, current_exceeded_waiting_time);
             std::vector<double> walk = walk_result.first;
-            exceeded_waiting_time = walk_result.second;
+            current_exceeded_waiting_time = walk_result.second;
             sum_squared_residuals += get_avg_squared_residuals(walk);
         }
         
@@ -277,8 +296,10 @@ std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_
             error_report << "sum_squared_residuals: " << sum_squared_residuals << endl;
             error_report.close();
 
-            cerr << "Error: Invalid values for F2 calculation. Check error_report.txt for details." << endl;
-            continue;  // このイテレーションをスキップ
+            time_t now = time(0);
+            tm* localtm = localtime(&now);
+            cerr << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << "Error: Invalid values for F2 calculation. Check error_report.txt for details." << endl;
+            continue;
         }
 
         double F2 = sum_squared_residuals / (number_of_segments);
@@ -304,8 +325,10 @@ std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_
             error_report << "l: " << l << endl;
             error_report.close();
 
-            cerr << "Error: Invalid F2 value. Check error_report.txt for details." << endl;
-            continue;  // このイテレーションをスキップ
+            time_t now = time(0);
+            tm* localtm = localtime(&now);
+            cerr << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << "Error: Invalid F2 value. Check error_report.txt for details." << endl;
+            continue; 
         }
 
         double F = pow(F2, 0.5);
@@ -329,16 +352,22 @@ std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_
             error_report << "F: " << F << endl;
             error_report.close();
 
-            cerr << "Error: NaN value detected in F calculation. Check error_report.txt for details." << endl;
-            continue;  // このイテレーションをスキップ
+            time_t now = time(0);
+            tm* localtm = localtime(&now);
+            cerr << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << "Error: NaN value detected in F calculation. Check error_report.txt for details." << endl;
+            continue;
         }
 
         l_F_pairs.push_back(std::make_pair(l, F));
-        cout << "セグメント " <<  number_of_segments << "回 完了 (alpha=" << alpha << ", l=" << l << ")" << endl;
+        time_t now = time(0);
+        tm* localtm = localtime(&now);
+        cout << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << "セグメント " <<  number_of_segments << "回 完了 (alpha=" << alpha << ", l=" << l << ")" << endl;
     }
 
     for (const auto& pair : l_F_pairs) {
-        std::cout << "l: " << pair.first << ", F: " << pair.second << std::endl;
+        time_t now = time(0);
+        tm* localtm = localtime(&now);
+        std::cout << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << "l: " << pair.first << ", F: " << pair.second << std::endl;
     }
     return l_F_pairs;
 }
