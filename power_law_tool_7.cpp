@@ -237,7 +237,7 @@ double get_exceeded_waiting_time(double alpha, double tau_0, int number_of_segme
 
 std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_0, int number_of_segments, int first_i, int last_i, float l_base) {
     std::vector<std::pair<int, double>> l_F_pairs;
-    int first_l = static_cast<int>(pow(l_base, first_i));
+    int first_l = static_cast<int>(pow(l_base, last_i));
     double current_exceeded_waiting_time = get_exceeded_waiting_time(alpha, tau_0, number_of_segments, first_l);
     for (int i = first_i; i <= last_i; ++i) {
         int l = static_cast<int>(pow(l_base, i));
