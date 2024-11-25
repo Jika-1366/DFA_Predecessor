@@ -36,17 +36,16 @@ std::pair<std::vector<double>, double> simulate_event_times(double tau_0, double
     std::vector<double> event_times;
     double t = exceeded_waiting_time_parameter;   //前回のexceeded_wating_timeを使う。最初は0のはず
     double exceeded_waiting_time = 0.0; // 初期化
-
+    
     while (t < T) {
+        event_times.push_back(t);//前回の分のtで更新
         double waiting_time = waiting_time_power_law(tau_0, alpha);
         t += waiting_time;
         if (t >= T) {
             exceeded_waiting_time = t - T;
             break;// シミュレーション時間を超えたら終了
         }
-        event_times.push_back(t);
     }
-
     return std::make_pair(event_times, exceeded_waiting_time);
 }
 
@@ -96,39 +95,6 @@ std::pair<std::vector<double>, double> generate_power_law_point_process(double a
 }
 
 
-
-
-std::vector<double> incorrect_generate_power_law_point_process(double alpha, double tau_0, int sample_amount) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(0.0, 1.0);
-    srand(time(NULL));
-    //double u = dis(gen);
-    
-    std::vector<double> N(sample_amount);
-    N[0] = 0; 
-    //waiting_timeの取得
-    //double u = dis(gen);
-    double u = ((double) rand())/((double) RAND_MAX);
-    double waiting_time = tau_0 * std::pow(u, -1.0 / alpha);
-    //tとは時刻のこと。時刻の積み重ねがinter_occurence_timeを越えたら、Nを+1して、積み重ねをリセット
-    int accumulated_time = 0;
-    for (int t = 1; t < sample_amount; ++t) {
-        accumulated_time += 1;
-        if (accumulated_time >= waiting_time){ // 変更: queueの先頭から値を取得
-            accumulated_time = 0;
-            N[t]= N[t-1] +1; 
-            double u = ((double) rand())/((double) RAND_MAX);
-            waiting_time = tau_0 * std::pow(u, -1.0 / alpha);
-            }
-            
-        else{N[t] = N[t-1];
-        }
-
-    }
-    
-    return N;
-}    
 
 double get_directly_residuls2(const std::vector<double>& y) {
     int n = y.size();
@@ -246,29 +212,37 @@ double get_avg_squared_residuals(std::vector<double> walk){
     return avg_squared_residual;
 }
 
-double get_exceeded_waiting_time(double alpha, double tau_0, int number_of_segments, int l, double exceeded_waiting_time) {
-    double current_exceeded_waiting_time = exceeded_waiting_time;
+double get_exceeded_waiting_time(double alpha, double tau_0, int number_of_segments, int l) {
+// simulate_event_times関数をほぼ真似た形。だが、連続関数を想定した、event_timesというのは必要ないので削除
+    long double t = 0.0;   //前回のexceeded_wating_timeを使う。最初は0のはず
+    double exceeded_waiting_time = 0.0; // 初期化
+    long long T = static_cast<long long>(number_of_segments) * l * 100;
+
     
-    for (int j = 0; j < number_of_segments*100; ++j) {
-        std::pair<std::vector<double>, double> walk_result = generate_power_law_point_process(alpha, tau_0, l, current_exceeded_waiting_time);
-        std::vector<double> walk = walk_result.first;
-        current_exceeded_waiting_time = walk_result.second;
+    while (t < T) {
+        double waiting_time = waiting_time_power_law(tau_0, alpha);
+        t += waiting_time;
+        if (t >= T) {
+            exceeded_waiting_time = t - T;
+            break;// シミュレーション時間を超えたら終了
+        }
     }
-    
     time_t now = time(0);
     tm* localtm = localtime(&now);
-    cout << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << number_of_segments * 100 << "回 系をEvolve the system over time。空回し (alpha=" << alpha << ", l=" << l << ")" << endl;
-    return current_exceeded_waiting_time;
+    cout << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << T/l << "回 系をEvolve the system over time。空回し (alpha=" << alpha << ", l=" << l << ")" << endl;
+        
+    return exceeded_waiting_time;
 }
 
 
 std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_0, int number_of_segments, int first_i, int last_i, float l_base) {
     std::vector<std::pair<int, double>> l_F_pairs;
+    int first_l = static_cast<int>(pow(l_base, first_i));
+    double current_exceeded_waiting_time = get_exceeded_waiting_time(alpha, tau_0, number_of_segments, first_l);
     for (int i = first_i; i <= last_i; ++i) {
         int l = static_cast<int>(pow(l_base, i));
-        double current_exceeded_waiting_time = 0.0;
         double sum_squared_residuals = 0.0;
-        get_exceeded_waiting_time(alpha, tau_0, number_of_segments, l, current_exceeded_waiting_time);
+        
         for (int j = 0; j < number_of_segments; ++j) {
             std::pair<std::vector<double>, double> walk_result = generate_power_law_point_process(alpha, tau_0, l, current_exceeded_waiting_time);
             std::vector<double> walk = walk_result.first;
