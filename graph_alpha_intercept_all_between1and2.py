@@ -56,6 +56,25 @@ def theoretical_value(alpha):
     sqrt_coffi = np.sqrt(coffi)
     return np.log(sqrt_coffi)
 
+def theoretical_value_202411(alpha):    
+    youso1 = (
+        -6 * (-3 + alpha) / ((-7 + alpha) * (-6 + alpha) * (-5 + alpha))
+        + 1 / (-20 + 9 * alpha - alpha**2)
+        + 1 / (4 - alpha)
+    )
+    
+    tau_0 = 1.0
+    c = calculate_c(alpha=alpha, tau_0=tau_0)
+    mu = (alpha * tau_0) / (alpha - 1)
+    pc = calculate_pc(tau_0=tau_0, alpha=alpha, mu=mu)
+    qc = calculate_qc(tau_0=tau_0, alpha=alpha, mu=mu)
+
+    a_and_b= calculate_a_and_b(c, tau_0, alpha, mu)
+    youso2 = -2*a_and_b["a7"]
+    coffi = youso1*youso2    
+
+    sqrt_coffi = np.sqrt(coffi)
+    return np.log(sqrt_coffi)
 
 def main():
     try:
