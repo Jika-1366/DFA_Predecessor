@@ -32,7 +32,7 @@ double get_residuals_legacy(const std::vector<double>& y) {
         residual_sum_squares += residual * residual;
     }
 
-    return residual_sum_squares;
+    return residual_sum_squares / n;  // 残差の平均を返すように修正
 }
 
 // 直接手法：新しい残差計算方法
@@ -130,7 +130,8 @@ double get_residuals_simd(const std::vector<double>& y) {
     
     for (int i = 0; i < n; i += 4) {
         __m256d y_vec = _mm256_loadu_pd(&y[i]);
-        __m256d idx_vec = _mm256_set_pd(i+4, i+3, i+2, i+1);
+        // インデックスを1から始めるように修正
+        __m256d idx_vec = _mm256_set_pd(i+4+1, i+3+1, i+2+1, i+1+1);
         
         // sq_sum計算
         sq_sum_vec = _mm256_add_pd(sq_sum_vec, _mm256_mul_pd(y_vec, y_vec));
@@ -145,6 +146,33 @@ double get_residuals_simd(const std::vector<double>& y) {
 
     long double sq_sum = sq_sum_arr[0] + sq_sum_arr[1] + sq_sum_arr[2] + sq_sum_arr[3];
     long double weighted_sum = weighted_sum_arr[0] + weighted_sum_arr[1] + weighted_sum_arr[2] + weighted_sum_arr[3];
+
+    long double v2_y = (sq_sum / n) - mean*mean;
+    long double second_term = (12.0*(n+1)/(n-1))*std::pow((weighted_sum/n/(n+1) - mean/2),2);
+
+    return v2_y - second_term;
+}
+
+// Power Law Tool 7の実装を使用した手法
+double get_residuals_power_law_7(const std::vector<double>& y) {
+    int n = y.size();
+    if (n == 0) {
+        return 0.0;
+    }
+
+    double sum = 0.0;
+    for (double value : y) {
+        sum += value;
+    }
+    double mean = sum / n;
+
+    long double sq_sum = 0.0L;
+    long double weighted_sum = 0.0L;
+    for (size_t i = 0; i < y.size(); ++i) {
+        double value = y[i];
+        sq_sum += value * value;
+        weighted_sum += (i+1) * value;
+    }
 
     long double v2_y = (sq_sum / n) - mean*mean;
     long double second_term = (12.0*(n+1)/(n-1))*std::pow((weighted_sum/n/(n+1) - mean/2),2);
