@@ -13,7 +13,6 @@
 #include <queue>
 #include <tuple> 
 
-#include <execution>
 #include <numeric>
 #include <vector>
 
@@ -242,7 +241,9 @@ std::vector<std::pair<int, double>> calculate_F_values(double alpha, double tau_
     for (int i = first_i; i <= last_i; ++i) {
         int l = static_cast<int>(pow(l_base, i));
         double sum_squared_residuals = 0.0;
-        
+        if (l * number_of_segments <= 100000000) {
+            number_of_segments = 100000000 / l;
+        }
         for (int j = 0; j < number_of_segments; ++j) {
             std::pair<std::vector<double>, double> walk_result = generate_power_law_point_process(alpha, tau_0, l, current_exceeded_waiting_time);
             std::vector<double> walk = walk_result.first;

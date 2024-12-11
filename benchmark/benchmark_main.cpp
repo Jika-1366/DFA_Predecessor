@@ -41,6 +41,12 @@ void run_benchmark(const std::vector<double>& data) {
     end = std::chrono::high_resolution_clock::now();
     auto simd_duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
+    // Power Law Tool 7版
+    start = std::chrono::high_resolution_clock::now();
+    double power_law_7_result = get_residuals_power_law_7(data);
+    end = std::chrono::high_resolution_clock::now();
+    auto power_law_7_duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
     // 結果の出力
     std::cout << "=== ベンチマーク結果 ===\n\n";
     
@@ -48,12 +54,14 @@ void run_benchmark(const std::vector<double>& data) {
     print_benchmark_results("直接手法", direct_duration, direct_result, legacy_result, legacy_duration);
     print_benchmark_results("OpenMP並列処理版", openmp_duration, openmp_result, legacy_result, legacy_duration);
     print_benchmark_results("SIMD並列処理版", simd_duration, simd_result, legacy_result, legacy_duration);
+    print_benchmark_results("Power Law Tool 7版", power_law_7_duration, power_law_7_result, legacy_result, legacy_duration);
 
     // 結果の一致確認
     const double epsilon = 1e-10;
     bool results_match = 
         std::abs(direct_result - openmp_result) < epsilon &&
-        std::abs(direct_result - simd_result) < epsilon;
+        std::abs(direct_result - simd_result) < epsilon &&
+        std::abs(direct_result - power_law_7_result) < epsilon;
 
     std::cout << "新手法の結果一致: " << (results_match ? "すべての実装が同じ結果を返しています" : "警告：実装間で結果が異なります") << "\n";
 }
@@ -61,7 +69,7 @@ void run_benchmark(const std::vector<double>& data) {
 int main() {
     std::cout << "パワーロー分布に従うデータを生成中...\n";
     
-    std::vector<int> test_sizes = {10000000, 100000000, 200000000};
+    std::vector<int> test_sizes = {20,10000000, 100000000, 200000000};
     double exceeded_waiting_time = 0.0;  // 初期値
     
     for (int size : test_sizes) {

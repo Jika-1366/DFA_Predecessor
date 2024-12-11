@@ -23,7 +23,7 @@ def calculate_a_and_b(c, tau_0, alpha, mu):
     a4 = 2 * pc / mu
     a5 = pc**2
     a6 = 2 * c / (mu**3 * math.gamma(3 - alpha))
-    a7 = -c / (mu**3 * math.gamma(4 - alpha))
+    a7 = -c / ((mu**3) * math.gamma(4 - alpha))
     a8 = c / (2 * mu**3 * math.gamma(2 - alpha))
     
     b1 = a1

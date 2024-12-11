@@ -18,7 +18,7 @@ print(f'グラフは {output_graph_file} として保存されます。')
 #b_i * b_inte_iで、i=4は抜いて足し算すれば、F^2の第二項が得られます。
 
 # 計算値を計算する関数
-def theoretical_value(alpha):
+def theoretical_value_old(alpha):
     if alpha >=1.99:
         return None
     tau_0 = 1.0
@@ -56,10 +56,10 @@ def theoretical_value(alpha):
     sqrt_coffi = np.sqrt(coffi)
     return np.log(sqrt_coffi)
 
-def theoretical_value_202411(alpha):    
+def theoretical_value(alpha):    
     youso1 = (
         -6 * (-3 + alpha) / ((-7 + alpha) * (-6 + alpha) * (-5 + alpha))
-        + 1 / (-20 + 9 * alpha - alpha**2)
+        - 2 / (20 - 9 * alpha + alpha**2)
         + 1 / (4 - alpha)
     )
     

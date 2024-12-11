@@ -32,7 +32,7 @@ double get_residuals_legacy(const std::vector<double>& y) {
         residual_sum_squares += residual * residual;
     }
 
-    return residual_sum_squares / n;  // 残差の平均を返すように修正
+    return residual_sum_squares / (n);  // 残差の平均を返すように修正
 }
 
 // 直接手法：新しい残差計算方法

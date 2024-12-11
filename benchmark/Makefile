@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -O3 -fopenmp -mavx2 -Wall -Wextra
+CXXFLAGS = -std=c++17 -O1 -fno-fast-math -fopenmp -mavx2 -Wall -Wextra
 INCLUDES = -I..
 
 TARGET = benchmark
