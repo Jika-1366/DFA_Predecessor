@@ -57,6 +57,8 @@ def theoretical_value_old(alpha):
     return np.log(sqrt_coffi)
 
 def theoretical_value(alpha):    
+    if alpha >=1.99:
+        return None
     youso1 = (
         -6 * (-3 + alpha) / ((-7 + alpha) * (-6 + alpha) * (-5 + alpha))
         - 2 / (20 - 9 * alpha + alpha**2)

@@ -142,9 +142,9 @@ def main():
             F_calc_simple = calculate_F_calc_simple(l, alpha)
             ax.loglog(l, F_calc_simple, linestyle='-', color='red', linewidth=1.5,
                       label=f'Calc Simple: F = {np.sqrt(main_coffi):.3f}*l^({(3-alpha)/2:.3f})')
-            F_calc_complex = calculate_F_calc_detailed(l, alpha)
-            ax.loglog(l, F_calc_complex, linestyle='-', color='green', linewidth=1.5,
-                      label=f'Calc Complex: F = {np.sqrt(main_coffi):.3f}l^({(3-alpha)/2}) + {np.sqrt(second_coffi):.3f}*l^({2-alpha:.3f})')
+            #F_calc_complex = calculate_F_calc_detailed(l, alpha)
+            #ax.loglog(l, F_calc_complex, linestyle='-', color='green', linewidth=1.5,
+                      #label=f'Calc Complex: F = {np.sqrt(main_coffi):.3f}l^({(3-alpha)/2}) + {np.sqrt(second_coffi):.3f}*l^({2-alpha:.3f})')
         elif alpha >= 2.0 and alpha<=2.09:
             alpha = 2.01
             F_calc_above2 = calcualte_F_calc_alpha_above2(l, alpha)
@@ -170,8 +170,8 @@ def main():
         ax.grid(True)
 
         if 1 < alpha < 2:
-            ax.set_ylim([min(min(F), min(F_calc_simple), min(F_calc_complex)), 
-                         max(max(F), max(F_calc_simple), max(F_calc_complex))])
+            ax.set_ylim([min(min(F), min(F_calc_simple)), 
+                         max(max(F), max(F_calc_simple))])
         else:
             ax.set_ylim([min(F), max(F)])
         if alpha == 1.2:

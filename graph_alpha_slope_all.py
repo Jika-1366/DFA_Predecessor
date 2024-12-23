@@ -26,7 +26,7 @@ def main():
     data = prepare_slope_data()
 
     # 1.3 <= alpha <= 1.8 の範囲のデータを抽出
-    mask = (data['alpha'] >= 1.3) & (data['alpha'] <= 1.8)
+    mask = (data['alpha'] >= 1.1) & (data['alpha'] <= 1.9)
     filtered_data = data[mask]
 
     # 線形回帰を行う
