@@ -6,13 +6,14 @@ import os
 import re
 
 from formulas.second_term import calculate_second_coffi
-from graph_alpha_intercept_all_between1and2 import theoretical_value
+from formulas.calculate_intercept import calculate_intercept, calculate_second_intercept
+
 from graph_alpha_slope_all import prepare_slope_data
 from graph_alpha_intercept_all import prepare_intercept_data
 
 def calculate_F_calc_simple(l, alpha):
     global main_coffi
-    sqrt_log_main_coffi = theoretical_value(alpha)
+    sqrt_log_main_coffi = calculate_intercept(alpha)
     sqrt_main_coffi = np.exp(sqrt_log_main_coffi)
     main_coffi = sqrt_main_coffi**2.0
     F2 = (main_coffi * l**(3-alpha))
@@ -23,11 +24,11 @@ def calculate_F_calc_simple(l, alpha):
 
 def calculate_F_calc_detailed(l, alpha):
     global main_coffi, second_coffi
-    sqrt_log_main_coffi = theoretical_value(alpha)
+    sqrt_log_main_coffi = calculate_intercept(alpha)
     sqrt_main_coffi =  np.exp(sqrt_log_main_coffi)
     main_coffi = sqrt_main_coffi**2.0
-    second_coffi = calculate_second_coffi(alpha=alpha)
-    F2= (main_coffi*l**((3-alpha)) + second_coffi*l**(4-2*alpha))
+    second_coffi = calculate_second_intercept(alpha=alpha)
+    F2= (main_coffi*l**((3-alpha)) + (second_coffi)*l)
     F = np.sqrt(F2)
     return F
 
@@ -142,9 +143,9 @@ def main():
             F_calc_simple = calculate_F_calc_simple(l, alpha)
             ax.loglog(l, F_calc_simple, linestyle='-', color='red', linewidth=1.5,
                       label=f'Calc Simple: F = {np.sqrt(main_coffi):.3f}*l^({(3-alpha)/2:.3f})')
-            #F_calc_complex = calculate_F_calc_detailed(l, alpha)
+            F_calc_complex = calculate_F_calc_detailed(l, alpha)
             #ax.loglog(l, F_calc_complex, linestyle='-', color='green', linewidth=1.5,
-                      #label=f'Calc Complex: F = {np.sqrt(main_coffi):.3f}l^({(3-alpha)/2}) + {np.sqrt(second_coffi):.3f}*l^({2-alpha:.3f})')
+                      #label=f'Calc Complex: F = {np.sqrt(main_coffi):.3f}l^({(3-alpha)/2}) + {np.sqrt(second_coffi):.3f}*l^(0.5)')
         elif alpha >= 2.0 and alpha<=2.09:
             alpha = 2.01
             F_calc_above2 = calcualte_F_calc_alpha_above2(l, alpha)

@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
+import glob
+import os
 
 def prepare_slope_data():
     # CSVファイルを読み込む
@@ -21,6 +23,9 @@ def prepare_slope_data():
     results = data.apply(calculate_mean_and_error, axis=1)
     data = data.join(results)
     return data
+
+
+
 
 def main():
     data = prepare_slope_data()

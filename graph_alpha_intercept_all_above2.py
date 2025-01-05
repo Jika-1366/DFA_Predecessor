@@ -38,6 +38,7 @@ def theoretical_value_above2(alpha):
     #c1 = (secondmoment - 2*(mu**2))/(2*(mu**2))
     c1 = (1+2*alpha-alpha**2)/(2*alpha*(alpha-2))
     
+    print(f"c1: {c1}")
     #coffi = (1+(2*c1))/(15*mu)
     coffi = (sigma2)/15
 

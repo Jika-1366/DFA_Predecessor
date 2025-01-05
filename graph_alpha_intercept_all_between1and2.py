@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
+from formulas.calculate_intercept import calculate_intercept
 
 # グラフを出力するファイル名を変数として定義
 output_graph_file = 'graph_alpha_intercept_between1and2.png'
@@ -15,68 +16,6 @@ output_graph_file = 'graph_alpha_intercept_between1and2.png'
 # ファイル名を表示
 print(f'グラフは {output_graph_file} として保存されます。')
 
-#b_i * b_inte_iで、i=4は抜いて足し算すれば、F^2の第二項が得られます。
-
-# 計算値を計算する関数
-def theoretical_value_old(alpha):
-    if alpha >=1.99:
-        return None
-    tau_0 = 1.0
-    c = calculate_c(alpha=alpha, tau_0=tau_0)
-    mu = (alpha * tau_0) / (alpha - 1)
-    pc = calculate_pc(tau_0=tau_0, alpha=alpha, mu=mu)
-    qc = calculate_qc(tau_0=tau_0, alpha=alpha, mu=mu)
-
-    a_and_b= calculate_a_and_b(c, tau_0, alpha, mu)
-    sum_coffi1 = calculate_cova1_coffi1(qc=qc, pc=pc, mu=mu )*calculate_cova1_inte1(alpha)
-    coffi1 = sum_coffi1
-
-    cova2_inte_list= calculate_cova2_inte(alpha=alpha)
-    
-    cova2_coffi_list = [a_and_b["b1"], a_and_b["b2"], a_and_b["b3"], a_and_b["b5"], a_and_b["b6"]]
-    if len(cova2_inte_list) != len(cova2_coffi_list):
-        raise ValueError("cova2_inte_list and cova2_coffi_list must have the same length")
-    cova2_list = [cova2_inte_list[i]*cova2_coffi_list[i] for i in range(len(cova2_inte_list))]
-    # cova2_inte_listの要素をそれぞれ2倍する。なぜならまだ重積分の一か所だったから
-    sum_coffi2 = 2.0*sum(cova2_list)
-    coffi2= -12.0*sum_coffi2
-
-    cova3_inte_list = calculate_cova3_inte(alpha=alpha)
-    cova3_coffi_list = cova2_coffi_list
-    if len(cova3_inte_list) != len(cova3_coffi_list):
-        raise ValueError("cova3_inte_list and cova3_coffi_list must have the same length")
-    cova3_list = [cova3_inte_list[i]*cova3_coffi_list[i] for i in range(len(cova3_inte_list))]
-    # cova3_inte_listの要素をそれぞれ2倍する。なぜならまだ重積分の一か所だったから
-    sum_coffi3 = 2.0*sum(cova3_list)
-    coffi3 = -sum_coffi3
-
-    coffi = coffi1 + coffi2 + coffi3
-    print(f"coffi: {coffi:.4f}")
-
-    sqrt_coffi = np.sqrt(coffi)
-    return np.log(sqrt_coffi)
-
-def theoretical_value(alpha):    
-    if alpha >=1.99:
-        return None
-    youso1 = (
-        -6 * (-3 + alpha) / ((-7 + alpha) * (-6 + alpha) * (-5 + alpha))
-        - 2 / (20 - 9 * alpha + alpha**2)
-        + 1 / (4 - alpha)
-    )
-    
-    tau_0 = 1.0
-    c = calculate_c(alpha=alpha, tau_0=tau_0)
-    mu = (alpha * tau_0) / (alpha - 1)
-    pc = calculate_pc(tau_0=tau_0, alpha=alpha, mu=mu)
-    qc = calculate_qc(tau_0=tau_0, alpha=alpha, mu=mu)
-
-    a_and_b= calculate_a_and_b(c, tau_0, alpha, mu)
-    youso2 = -2*a_and_b["a7"]
-    coffi = youso1*youso2    
-
-    sqrt_coffi = np.sqrt(coffi)
-    return np.log(sqrt_coffi)
 
 def main():
     try:
@@ -101,7 +40,7 @@ def main():
         data = data.join(results)
 
         # 計算値
-        data['theoretical'] = data['alpha'].apply(lambda alpha: theoretical_value(alpha))
+        data['theoretical'] = data['alpha'].apply(lambda alpha: calculate_intercept(alpha))
 
         # 直線の式を計算
         slope, intercept, r_value, p_value, std_err = stats.linregress(data['alpha'], data['mean_intercept'])
