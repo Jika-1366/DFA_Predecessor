@@ -52,7 +52,6 @@ double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
 
 
 
-
 // イベント時刻をシミュレーションする関数
 std::vector<double> simulate_event_times(double tau_0, double alpha, double T) {
 
@@ -96,8 +95,6 @@ std::vector<unsigned long long> count_events_per_unit_time(const std::vector<dou
 
 
 
-
-
 // 更新過程をシミュレーションし、各時刻でのイベント数を返す関数
 std::vector<unsigned long long> generate_power_law_point_process(double alpha, double tau_0, int sample_amount) {
     // 乱数シードの初期化（必要に応じてシード値を固定してください）
@@ -124,13 +121,15 @@ double get_directly_residuls2(const std::vector<unsigned long long>& y) {
 
     //double mean = std::reduce(std::execution::par, y.begin(), y.end(), 0.0) / y.size();
     double sum = 0.0;
+    long double sq_sum = 0.0L;
+    long double weighted_sum = 0.0L;
+    
     for (double value : y) {
         sum += value;
     }
     double mean = sum / n;
 
-    long double sq_sum = 0.0L;
-    long double weighted_sum = 0.0L;
+
     for (size_t i = 0; i < y.size(); ++i) {
         double value = y[i];
         sq_sum += value * value;

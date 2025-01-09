@@ -91,10 +91,10 @@ slope_data = prepare_slope_data()
 
 intercept_data= prepare_intercept_data()
 
-
-
 def main():
     global current_alpha, fig, ax
+    max_F_value = None
+    
     for i, csv_file in enumerate(csv_files):
         alpha = extract_alpha(csv_file)
         
@@ -106,7 +106,6 @@ def main():
             fig, ax = plt.subplots(figsize=(10, 6))
             current_alpha = alpha
             color_index = 0
-        
         
         df = pd.read_csv(csv_file, header=None)
         l = df.iloc[:, 0].values
@@ -120,6 +119,10 @@ def main():
         if len(l) == 0 or len(F) == 0:
             print(f"警告: {csv_file} には有効なデータがありません。スキップします。")
             continue
+            
+        # 最初のイテレーションでmax_F_valueを設定
+        if i == 0:
+            max_F_value = max(F)
         
         ax.loglog(l, F, marker=markers[color_index % len(markers)], linestyle='', 
                   label=f'Data_{os.path.basename(csv_file)}', color=colors[color_index % len(colors)])
@@ -151,15 +154,11 @@ def main():
             F_calc_above2 = calcualte_F_calc_alpha_above2(l, alpha)
             ax.loglog(l, F_calc_above2, linestyle='-', color='red', linewidth=1.5,
                       label=f'Calc (α > 2): F = {coffi_alpha_above2:.3f}*l^0.5')
-            ax.set_ylim([min(min(F), min(F_calc_above2), min(F_dfa3)), 
-                         max(max(F), max(F_calc_above2), max(F_dfa3))])
 
         elif alpha > 2.02:
             F_calc_above2 = calcualte_F_calc_alpha_above2(l, alpha)
             ax.loglog(l, F_calc_above2, linestyle='-', color='red', linewidth=1.5,
                       label=f'Calc (α > 2): F = {coffi_alpha_above2:.3f}*l^0.5')
-            ax.set_ylim([min(min(F), min(F_calc_above2), min(F_dfa3)), 
-                         max(max(F), max(F_calc_above2), max(F_dfa3))])
 
         color_index += 1
 
@@ -169,12 +168,10 @@ def main():
         ax.legend(fontsize=10)
         ax.set_xlim([min(l), max(l)])
         ax.grid(True)
+        
+        # 縦軸の範囲を固定
+        ax.set_ylim([0.1, max_F_value])
 
-        if 1 < alpha < 2:
-            ax.set_ylim([min(min(F), min(F_calc_simple)), 
-                         max(max(F), max(F_calc_simple))])
-        else:
-            ax.set_ylim([min(F), max(F)])
         if alpha == 1.2:
             l_100 = 10**6
             F_100 = np.exp(intercept) * l_100 ** slope
