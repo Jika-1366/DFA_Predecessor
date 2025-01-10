@@ -71,8 +71,8 @@ std::vector<double> simulate_event_times(double tau_0, double alpha, double T) {
 }
 
 // 各整数時刻での累積イベント数を計算する関数（2つのforループを使用）
-std::vector<unsigned long long> count_events_per_unit_time(const std::vector<double>& event_times, int T) {
-    std::vector<unsigned long long> event_counts(T, 0); // サイズをTに変更
+std::vector<unsigned int> count_events_per_unit_time(const std::vector<double>& event_times, int T) {
+    std::vector<unsigned int> event_counts(T, 0); // サイズをTに変更
     std::vector<int> events_per_time(T, 0);   // その時刻()において一秒間の間にイベントが起きた回数
 
     // 1つ目のforループ：各時刻でのイベント数をカウント
@@ -96,7 +96,7 @@ std::vector<unsigned long long> count_events_per_unit_time(const std::vector<dou
 
 
 // 更新過程をシミュレーションし、各時刻でのイベント数を返す関数
-std::vector<unsigned long long> generate_power_law_point_process(double alpha, double tau_0, int sample_amount) {
+std::vector<unsigned int> generate_power_law_point_process(double alpha, double tau_0, int sample_amount) {
     // 乱数シードの初期化（必要に応じてシード値を固定してください）
     srand(static_cast<unsigned int>(time(NULL)));
 
@@ -104,7 +104,7 @@ std::vector<unsigned long long> generate_power_law_point_process(double alpha, d
     std::vector<double> event_times = simulate_event_times(tau_0, alpha, sample_amount);
 
     // 各時刻での累積イベント数を計算
-    std::vector<unsigned long long> event_counts = count_events_per_unit_time(event_times, sample_amount);
+    std::vector<unsigned int> event_counts = count_events_per_unit_time(event_times, sample_amount);
 
     return event_counts;
 }
@@ -113,25 +113,25 @@ std::vector<unsigned long long> generate_power_law_point_process(double alpha, d
 
 
 
-double get_directly_residuls2(const std::vector<unsigned long long>& y) {
+double get_directly_residuls2(const std::vector<unsigned int>& y) {
     int n = y.size();
     if (n == 0) {
         return 0.0; // または適切なエラー処理
     }
 
     //double mean = std::reduce(std::execution::par, y.begin(), y.end(), 0.0) / y.size();
-    double sum = 0.0;
+    long double sum = 0.0;
     long double sq_sum = 0.0L;
     long double weighted_sum = 0.0L;
    
 
     for (size_t i = 0; i < y.size(); ++i) {
-        double value = y[i];
+        long double value = y[i];
         sum += value;
         sq_sum += value * value;
         weighted_sum += (i+1) * value;
     }
-    double mean = sum / n;
+    long double mean = sum / n;
 
     long double v2_y = (sq_sum / n) - mean*mean;
     long double second_term = (12.0*(n+1)/(n-1))*pow((weighted_sum/n/(n+1) - mean/2),2);
@@ -189,11 +189,11 @@ std::tuple<double, double, double> find_best_fit(const std::vector<double>& y, c
 }
 
 // Function to divide data
-vector<vector<unsigned long long>> generate_segments(const vector<unsigned long long>& data, int scale) {
-    vector<vector<unsigned long long>> segments;
+vector<vector<unsigned int>> generate_segments(const vector<unsigned int>& data, int scale) {
+    vector<vector<unsigned int>> segments;
     int num_segments = data.size() / scale;
     for (int i = 0; i < num_segments; ++i) {
-        vector<unsigned long long> segment(data.begin() + i * scale, data.begin() + ((i + 1) * scale));
+        vector<unsigned int> segment(data.begin() + i * scale, data.begin() + ((i + 1) * scale));
         segments.push_back(segment);
     }
     return segments;
@@ -201,7 +201,7 @@ vector<vector<unsigned long long>> generate_segments(const vector<unsigned long 
 
 
 
-std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<unsigned long long> RW_list, double alpha, int t_first_l, int t_last_l) {
+std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<unsigned int> RW_list, double alpha, int t_first_l, int t_last_l) {
     cout << "dfa関数開始" << endl;
     // alphaを少数第1位で表示するために、snprintfを使用します。
     char buffer[20];
@@ -216,8 +216,8 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<uns
 
     // Adjust data
     // RWの開始を原点スタート(0スタート)にする、平行移動。
-    unsigned long long start_point = RW_list.front();
-    transform(RW_list.begin(), RW_list.end(), RW_list.begin(), [start_point](unsigned long long y) { return y - start_point; });
+    unsigned int start_point = RW_list.front();
+    transform(RW_list.begin(), RW_list.end(), RW_list.begin(), [start_point](unsigned int y) { return y - start_point; });
 
     
     int N = RW_list.size();
@@ -229,11 +229,11 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<uns
 
         int num_segments = N / l;
         int N_used = num_segments * l; // Number of data to use
-        vector<vector<unsigned long long>> segments = generate_segments(RW_list, l);
+        vector<vector<unsigned int>> segments = generate_segments(RW_list, l);
         ///////////////////////////////////////////////assert statement
         // Calculate the total number of elements in segments
         int total_elements = 0;
-        for (const vector<unsigned long long>& segment : segments) {
+        for (const vector<unsigned int>& segment : segments) {
             total_elements += segment.size();
         }
         // Check if the number of elements in segments matches N_used
@@ -250,7 +250,7 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<uns
         /////////////////////////////////////////////////////
 
         double sum_variance = 0.0;
-        for (vector<unsigned long long>& segment : segments) {
+        for (vector<unsigned int>& segment : segments) {
             double avg_variance = get_directly_residuls2(segment);
             sum_variance += avg_variance;
         }

@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
             ofstream F_all_output(F_all_file_name);
             
 
-            std::vector<unsigned long long> walk = generate_power_law_point_process(alpha, tau_0, sample_amount);
+            std::vector<unsigned int> walk = generate_power_law_point_process(alpha, tau_0, sample_amount);
             std::tuple<double, double, std::vector<int>, std::vector<double>> result = dfa(walk, alpha, t_first_l, t_last_l);
             double slope = std::get<0>(result);
             double intercept = std::get<1>(result);
