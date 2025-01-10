@@ -103,18 +103,16 @@ double get_directly_residuls2(const std::vector<double>& y) {
 
     //double mean = std::reduce(std::execution::par, y.begin(), y.end(), 0.0) / y.size();
     double sum = 0.0;
-    for (double value : y) {
-        sum += value;
-    }
-    double mean = sum / n;
-
+    
     long double sq_sum = 0.0L;
     long double weighted_sum = 0.0L;
     for (size_t i = 0; i < y.size(); ++i) {
         double value = y[i];
+        sum += value;
         sq_sum += value * value;
         weighted_sum += (i+1) * value;
     }
+    double mean = sum / n;
 
     long double v2_y = (sq_sum / n) - mean*mean;
     long double second_term = (12.0*(n+1)/(n-1))*pow((weighted_sum/n/(n+1) - mean/2),2);

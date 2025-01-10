@@ -138,8 +138,8 @@ def main():
                   #label=f'Fit: F = {np.exp(intercept):.4f} * l^{slope:.4f}')
         if 1 < alpha:
             F_dfa3, slope_dfa3, intercept_dfa3 = calculate_F_calced_dfa3(l, alpha)
-            ax.loglog(l, F_dfa3, linestyle='-', color='purple', linewidth=1.5,
-                        label=f'Fit: F = {np.exp(intercept_dfa3):.4f} * l^{slope_dfa3:.4f}')
+            #ax.loglog(l, F_dfa3, linestyle='-', color='purple', linewidth=1.5,
+                        #label=f'Fit: F = {np.exp(intercept_dfa3):.4f} * l^{slope_dfa3:.4f}')
             
         global main_coffi, second_coffi, coffi_alpha_above2
         if 1 < alpha < 2:
