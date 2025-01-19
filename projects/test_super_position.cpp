@@ -37,11 +37,17 @@ int main() {
     std::tuple<double, double, std::vector<int>, std::vector<double>> result1_5 = dfa_F2(walk_1_5, 1.5, t_first_l, t_last_l);
 
     vector<unsigned int> walk_1_5_and_1_1 = super_position(walk_1_5, walk_1_1);
-    std::tuple<double, double, std::vector<int>, std::vector<double>> result1_5_and_1_1 = dfa_F2(walk_1_5_and_1_1, 2.6, t_first_l, t_last_l);
+    std::tuple<double, double, std::vector<int>, std::vector<double>> result1_5_and_1_1 = dfa_F2(walk_1_5_and_1_1, 1.16, t_first_l, t_last_l);
 
     for (size_t i = 0; i < std::get<3>(result1_1).size(); ++i) {
 
-    cout << std::get<3>(result1_1)[i] << "," << std::get<3>(result1_5)[i] << "," << "sum_of_left, "<<std::get<3>(result1_1)[i] +std::get<3>(result1_5)[i]<<"             target"<<std::get<3>(result1_5_and_1_1)[i] << endl;
+        cout << std::get<2>(result1_1)[i] << ",";
+        cout << std::get<3>(result1_1)[i] << ",";
+        cout << std::get<3>(result1_5)[i] << ",";
+        cout << "sum_of_left, ";
+        cout << std::get<3>(result1_1)[i] + std::get<3>(result1_5)[i];
+        cout << "             target";
+        cout << std::get<3>(result1_5_and_1_1)[i] << endl;
     }
 }
 

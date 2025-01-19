@@ -33,7 +33,7 @@ double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
     double exceeded_waiting_time = 0.0; // 初期化
     double T100 = T*100;
     
-    while (t < T100) {
+    while (true) {
         double waiting_time = waiting_time_power_law(tau_0, alpha);
         t += waiting_time;
         if (t >= T100) {
