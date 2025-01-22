@@ -7,7 +7,7 @@
 #include <cmath>
 #include <algorithm>
 #include <iomanip>
-#include "utils/power_law_util.hpp"
+#include "../utils/power_law_util.hpp"
 
 using namespace std;
 
@@ -30,7 +30,7 @@ int main() {
 
 
 
-    const int num_trials = 100;
+    const int num_trials = 1;
     vector<vector<double>> results1_1(num_trials);
     vector<vector<double>> results1_5(num_trials); 
     vector<vector<double>> results1_5_and_1_1(num_trials);
