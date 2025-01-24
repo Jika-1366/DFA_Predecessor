@@ -1,5 +1,3 @@
-//alpha1.0~2.0に全てを懸けて、F_allも吐き出すプログラム
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -7,75 +5,81 @@
 #include <cmath>
 #include <algorithm>
 #include <iomanip>
+#include <sstream>
 #include "../utils/power_law_util.hpp"
 
 using namespace std;
 
-
-
-vector<unsigned int> super_position(vector<unsigned int> walk_1, vector<unsigned int> walk_2) {
-    vector<unsigned int> walk_super;
-    for (size_t i = 0; i < walk_1.size(); ++i) {
-        walk_super.push_back(walk_1[i]+walk_2[i]);
-    }
-    return walk_super;
+// 2つのイベント時刻列を結合してソートする関数
+vector<double> merge_event_times(const vector<double>& times1, const vector<double>& times2) {
+    vector<double> merged;
+    merged.reserve(times1.size() + times2.size());
+    merged.insert(merged.end(), times1.begin(), times1.end());
+    merged.insert(merged.end(), times2.begin(), times2.end());
+    sort(merged.begin(), merged.end());
+    return merged;
 }
 
+// 隣接する時刻の差分を計算する関数
+vector<double> calculate_intervals(const vector<double>& times) {
+    vector<double> intervals;
+    intervals.reserve(times.size() - 1);
+    for (size_t i = 0; i < times.size() - 1; ++i) {
+        intervals.push_back(times[i + 1] - times[i]);
+    }
+    return intervals;
+}
 
 int main() {
     double tau_0 = 1.0;
-    int sample_amount = pow(10,8);
-    int t_first_l = 16;
-    int t_last_l = pow(10,7);
+    int sample_amount = pow(10, 5);  // サンプル数を調整可能
+    double T = sample_amount * tau_0;  // 十分な時間範囲
 
+    // 出力ディレクトリの設定
+    string output_dir = "intervals_alphas/";
 
+    // alpha値の範囲を設定（0.3刻み）
+    vector<double> alphas;
+    for (double alpha = 1.1; alpha <= 3.4; alpha += 0.3) {
+        alphas.push_back(round(alpha * 10) / 10);  // 浮動小数点の誤差を防ぐ
+    }
 
-    const int num_trials = 1;
-    vector<vector<double>> results1_1(num_trials);
-    vector<vector<double>> results1_5(num_trials); 
-    vector<vector<double>> results1_5_and_1_1(num_trials);
-    vector<int> time_scales; // 時間スケールを保存
+    // すべての組み合わせについて処理
+    for (size_t i = 0; i < alphas.size(); ++i) {
+        for (size_t j = i; j < alphas.size(); ++j) {
+            double alpha1 = alphas[i];
+            double alpha2 = alphas[j];
 
-    for (int trial = 0; trial < num_trials; trial++) {
-        vector<unsigned int> walk_1_1 = generate_power_law_point_process(1.1, tau_0, sample_amount);
-        auto result1_1 = dfa_F2(walk_1_1, 1.1, t_first_l, t_last_l);
-        results1_1[trial] = std::get<3>(result1_1);
+            // イベント時刻をシミュレーション
+            auto times1 = simulate_event_times(tau_0, alpha1, T);
+            auto times2 = simulate_event_times(tau_0, alpha2, T);
 
-        vector<unsigned int> walk_1_5 = generate_power_law_point_process(1.5, tau_0, sample_amount);
-        auto result1_5 = dfa_F2(walk_1_5, 1.5, t_first_l, t_last_l);
-        results1_5[trial] = std::get<3>(result1_5);
+            // イベント時刻を結合してソート
+            auto merged_times = merge_event_times(times1, times2);
 
-        vector<unsigned int> walk_1_5_and_1_1 = super_position(walk_1_5, walk_1_1);
-        auto result1_5_and_1_1 = dfa_F2(walk_1_5_and_1_1, 1000.0, t_first_l, t_last_l);
-        results1_5_and_1_1[trial] = std::get<3>(result1_5_and_1_1);
+            // 時間間隔を計算
+            auto intervals = calculate_intervals(merged_times);
 
-        if (trial == 0) {
-            time_scales = std::get<2>(result1_1);
+            // ファイル名を生成
+            ostringstream filename;
+            filename << output_dir << "intervals_alpha" << fixed << setprecision(1) 
+                    << alpha1 << "_" << alpha2 << ".csv";
+
+            // 結果をファイルに出力
+            ofstream outfile(filename.str());
+            for (const auto& interval : intervals) {
+                outfile << interval << "\n";
+            }
+            outfile.close();
+
+            cout << "Processed alpha1 = " << alpha1 
+                 << ", alpha2 = " << alpha2 
+                 << ", saved to " << filename.str() << endl;
         }
     }
 
-    // 各時間スケールごとに平均を計算
-    for (size_t i = 0; i < results1_1[0].size(); ++i) {
-        double avg1_1 = 0, avg1_5 = 0, avg1_5_and_1_1 = 0;
-        
-        for (int trial = 0; trial < num_trials; trial++) {
-            avg1_1 += results1_1[trial][i];
-            avg1_5 += results1_5[trial][i];
-            avg1_5_and_1_1 += results1_5_and_1_1[trial][i];
-        }
-        
-        avg1_1 /= num_trials;
-        avg1_5 /= num_trials;
-        avg1_5_and_1_1 /= num_trials;
-
-        cout << time_scales[i] << ",";
-        cout << avg1_1 << ",";
-        cout << avg1_5 << ",";
-        cout << "sum_of_left, ";
-        cout << avg1_1 + avg1_5;
-        cout << "             target";
-        cout << avg1_5_and_1_1 << endl;
-    }
-    
+    return 0;
 }
+
+
 
