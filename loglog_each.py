@@ -127,15 +127,16 @@ def main():
         ax.loglog(l, F, marker=markers[color_index % len(markers)], linestyle='', 
                   label=f'Data_{os.path.basename(csv_file)}', color=colors[color_index % len(colors)])
         
-        log_l = np.log(l)
-        log_F = np.log(F)
+        mask_large = l > 1e5
+        log_l = np.log(l[mask_large])
+        log_F = np.log(F[mask_large])
         coefficients = np.polyfit(log_l, log_F, 1)
         slope = coefficients[0]
         intercept = coefficients[1]
         print(f"{csv_file}: slope={slope:.4f}, intercept={intercept:.4f}")
         fit_line = np.exp(intercept) * l ** slope
-        #ax.loglog(l, fit_line, linestyle='--', color='blue', 
-                  #label=f'Fit: F = {np.exp(intercept):.4f} * l^{slope:.4f}')
+        ax.loglog(l, fit_line, linestyle='--', color='blue', 
+                  label=f'Fit: F = {np.exp(intercept):.4f} * l^{slope:.4f}')
         if 1 < alpha:
             F_dfa3, slope_dfa3, intercept_dfa3 = calculate_F_calced_dfa3(l, alpha)
             #ax.loglog(l, F_dfa3, linestyle='-', color='purple', linewidth=1.5,
