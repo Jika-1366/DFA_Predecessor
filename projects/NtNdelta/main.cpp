@@ -187,7 +187,7 @@ double calculate_theory_3_case(
                 term3 = -(c * pow(j, 3 - alpha)) / (pow(mu, 3) * gamma_4ma);
                 term4 = (c / pow(mu, 3)) * (pow(delta, 2 - alpha) * j) / gamma_3ma;
             } else {
-                term2 = (c / pow(mu, 3)) * (pow(j, 3 - alpha) * pow(delta, 2 - alpha)  +  (pow(delta, 3 - alpha) * pow(j, 2 - alpha))) / gamma_3ma;
+                term2 = -(c / pow(mu, 3)) * (pow(j, 3 - alpha) * pow(delta, 2 - alpha)  +  (pow(delta, 3 - alpha) * pow(j, 2 - alpha))) / gamma_3ma;
                 term3 = (c / pow(mu, 3)) * (pow(delta, 2 - alpha) * j) / gamma_3ma;
                 term4 = (c / pow(mu, 3)) * (pow(j, 2 - alpha) * delta) / gamma_3ma;
             }
@@ -241,7 +241,7 @@ double calculate_theory_perfect_deepseek(
 
             term2_1 = (c / (pow(mu, 3))) * (pow(j, 1 - alpha) * delta * delta)*(exp(j/delta) - 1) / gamma_3ma;
             term2_2 = (c / (pow(mu, 3))) * pow(j, 3 - alpha) / (gamma_3ma*gamma_4ma);
-            term2 = term2_1 + term2_2;
+            term2 = - term2_1 - term2_2;
             term3 = (c / pow(mu, 3)) * (pow(delta, 2 - alpha) * j) / gamma_3ma;
             term4 = (c / pow(mu, 3)) * (pow(j, 2 - alpha) * delta) / gamma_3ma;
             }
