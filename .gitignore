@@ -4,6 +4,9 @@
 # Ignore all PNG files
 *.png
 
+*/*.png
+
+
 *.exe
 
 # 例外的に許可するCSVファイル
@@ -13,9 +16,7 @@
 *.txt
 
 # Ignore files without extension
-*
-!*.*
-!*/
+
 
 **/__pycache__/
 

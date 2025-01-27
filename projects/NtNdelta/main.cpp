@@ -376,7 +376,7 @@ int main() {
     TheoreticalValueManager theoretical_manager;
 
     double total_sum = 0.0;
-    int repeat_amount = 10000;
+    int repeat_amount = 100;
     // 100回の繰り返し
     for (int iter = 0; iter < repeat_amount; ++iter) {
         // イベント時刻をシミュレーション
