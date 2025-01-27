@@ -32,7 +32,10 @@ vector<double> calculate_intervals(const vector<double>& times) {
 
 int main() {
     double tau_0 = 1.0;
-    int sample_amount = pow(10, 5);  // サンプル数を調整可能
+    int sample_amount = pow(10, 8);  // サンプル数を調整可能
+    int t_first_l = 2e4;
+    int t_last_l = 6e5;
+
     double T = sample_amount * tau_0;  // 十分な時間範囲
 
     // 出力ディレクトリの設定
@@ -57,24 +60,28 @@ int main() {
             // イベント時刻を結合してソート
             auto merged_times = merge_event_times(times1, times2);
 
-            // 時間間隔を計算
-            auto intervals = calculate_intervals(merged_times);
+            // 累積カウントを計算（sample_amountまでの時間で固定）
+            auto counts = count_events_per_unit_time(merged_times, sample_amount);
 
+            // DFA解析を実行して結果を返す
+            auto [slope, intercept, l_values, F_values] = dfa_F2(counts, alpha1, t_first_l, t_last_l);
+    
             // ファイル名を生成
             ostringstream filename;
-            filename << output_dir << "intervals_alpha" << fixed << setprecision(1) 
+            filename << output_dir << "dfa_alpha" << fixed << setprecision(1) 
                     << alpha1 << "_" << alpha2 << ".csv";
 
             // 結果をファイルに出力
             ofstream outfile(filename.str());
-            for (const auto& interval : intervals) {
-                outfile << interval << "\n";
+            for (size_t k = 0; k < l_values.size(); ++k) {
+                outfile << l_values[k] << "," << F_values[k] << "\n";
             }
             outfile.close();
 
             cout << "Processed alpha1 = " << alpha1 
                  << ", alpha2 = " << alpha2 
                  << ", saved to " << filename.str() << endl;
+            
         }
     }
 
