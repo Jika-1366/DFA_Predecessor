@@ -316,14 +316,14 @@ int main() {
     cout << setprecision(numeric_limits<double>::max_digits10) << scientific;
 
     double tau_0 = 1.0;
-    int sample_amount = pow(10, 5);  // サンプル数を10^7に設定
+    int sample_amount = pow(10, 2);  // サンプル数を10^7に設定
     double T = sample_amount * tau_0;
     double alpha = 1.5;  // 固定のalpha値
 
     TheoreticalValueManager theoretical_manager;
 
     double total_sum = 0.0;
-    int repeat_amount = 10000;
+    int repeat_amount = 100;
     // 100回の繰り返し
     for (int iter = 0; iter < repeat_amount; ++iter) {
         // イベント時刻をシミュレーション
