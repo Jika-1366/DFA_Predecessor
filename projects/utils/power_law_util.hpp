@@ -22,22 +22,21 @@
 
 using namespace std;
 
-double waiting_time_power_law(double tau_0, double alpha) {
-    static std::random_device rd;  // ハードウェアの乱数生成器
-    static std::mt19937 gen(rd()); // メルセンヌ・ツイスター
+double waiting_time_power_law(double tau_0, double alpha, std::mt19937& gen) {
     static std::uniform_real_distribution<> dis(0.0, 1.0);
     double u = dis(gen);
     return tau_0 * std::pow(u, -1.0 / alpha);
 }
 
 double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
-// simulate_event_times関数をほぼ真似た形。だが、連続関数を想定した、event_timesというのは必要ないので削除
+    std::random_device rd;
+    std::mt19937 gen(rd());
     long double t = 0.0;   //前回のexceeded_wating_timeを使う。最初は0のはず
     double exceeded_waiting_time = 0.0; // 初期化
     double T100 = T*100;
     
     while (true) {
-        double waiting_time = waiting_time_power_law(tau_0, alpha);
+        double waiting_time = waiting_time_power_law(tau_0, alpha, gen);
         t += waiting_time;
         if (t >= T100) {
             exceeded_waiting_time = t - T100;
@@ -56,6 +55,8 @@ double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
 
 // イベント時刻をシミュレーションする関数
 std::vector<double> simulate_event_times(double tau_0, double alpha, double T) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
 
     //まず系を空で回す
     get_exceeded_waiting_time(alpha, tau_0, T);
@@ -63,7 +64,7 @@ std::vector<double> simulate_event_times(double tau_0, double alpha, double T) {
     double t = 0.0;
 
     while (t < T) {
-        double waiting_time = waiting_time_power_law(tau_0, alpha);
+        double waiting_time = waiting_time_power_law(tau_0, alpha, gen);
         t += waiting_time;
         if (t >= T) break; // シミュレーション時間を超えたら終了
         event_times.push_back(t);
