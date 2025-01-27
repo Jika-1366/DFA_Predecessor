@@ -23,7 +23,10 @@
 using namespace std;
 
 double waiting_time_power_law(double tau_0, double alpha) {
-    double u = ((double) rand())/((double) RAND_MAX);
+    static std::random_device rd;  // ハードウェアの乱数生成器
+    static std::mt19937 gen(rd()); // メルセンヌ・ツイスター
+    static std::uniform_real_distribution<> dis(0.0, 1.0);
+    double u = dis(gen);
     return tau_0 * std::pow(u, -1.0 / alpha);
 }
 
@@ -96,9 +99,6 @@ std::vector<unsigned int> count_events_per_unit_time(const std::vector<double>& 
 
 // 更新過程をシミュレーションし、各時刻でのイベント数を返す関数
 std::vector<unsigned int> generate_power_law_point_process(double alpha, double tau_0, int sample_amount) {
-    // 乱数シードの初期化（必要に応じてシード値を固定してください）
-    srand(static_cast<unsigned int>(time(NULL)));
-
     // イベント時刻のシミュレーション
     std::vector<double> event_times = simulate_event_times(tau_0, alpha, sample_amount);
 

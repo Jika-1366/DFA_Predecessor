@@ -6,7 +6,16 @@
 
 *.exe
 
+# 例外的に許可するCSVファイル
+!projects/NtNdelta/theoretical_values.csv
+
+
 *.txt
+
+# Ignore files without extension
+*
+!*.*
+!*/
 
 **/__pycache__/
 

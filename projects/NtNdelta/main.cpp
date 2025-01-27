@@ -3,7 +3,10 @@
 #include <string>
 #include <cmath>
 #include <algorithm>
+#include <iomanip>
+#include <limits>
 #include "../utils/power_law_util.hpp"
+#include "theoretical_values.hpp"
 
 using namespace std;
 
@@ -309,15 +312,20 @@ double calculate_theory_3_case_confident(
 }
 
 int main() {
+    // 出力の精度を最大に設定
+    cout << setprecision(numeric_limits<double>::max_digits10) << scientific;
+
     double tau_0 = 1.0;
-    int sample_amount = pow(10, 4);  // サンプル数を10^7に設定
+    int sample_amount = pow(10, 5);  // サンプル数を10^7に設定
     double T = sample_amount * tau_0;
     double alpha = 1.5;  // 固定のalpha値
 
-    double total_sum = 0.0;
+    TheoreticalValueManager theoretical_manager;
 
+    double total_sum = 0.0;
+    int repeat_amount = 10000;
     // 100回の繰り返し
-    for (int iter = 0; iter < 100; ++iter) {
+    for (int iter = 0; iter < repeat_amount; ++iter) {
         // イベント時刻をシミュレーション
         auto times = simulate_event_times(tau_0, alpha, T);
         
@@ -332,33 +340,53 @@ int main() {
         cout << "Iteration " << iter + 1 << " completed. Double sum: " << double_sum << endl;
     }
 
-    double average = total_sum / 100.0;
+    double average = total_sum / repeat_amount;
     cout << "All calculations completed. Average double sum: " << average << endl;
 
-    // 理論値の計算
-    double theoretical_simple = calculate_theory_simple(alpha, sample_amount);
+    // 理論値の計算と保存/再利用
+    auto calculate_or_get_theoretical = [&](const string& method_name, auto calculation_func) {
+        if (auto cached_value = theoretical_manager.getValue(alpha, sample_amount, method_name)) {
+            cout << "Using cached value for " << method_name << endl;
+            return *cached_value;
+        }
+        double value = calculation_func();
+        theoretical_manager.setValue(alpha, sample_amount, method_name, value);
+        return value;
+    };
+
+    // 各理論値の計算または取得
+    double theoretical_simple = calculate_or_get_theoretical("simple", 
+        [&]() { return calculate_theory_simple(alpha, sample_amount); });
     cout << "Theoretical value simple: " << scientific << theoretical_simple << endl;
     cout << "Relative error simple: " << (theoretical_simple - average)/average << endl;
 
-    double theoretical = calculate_theory_recent(alpha, sample_amount);
-    cout << "Theoretical value: " << scientific << theoretical << endl;
-    cout << "Relative error: " << (theoretical - average)/average << endl;
+    double theoretical = calculate_or_get_theoretical("recent", 
+        [&]() { return calculate_theory_recent(alpha, sample_amount); });
+    cout << "Theoretical value recent: " << scientific << theoretical << endl;
+    cout << "Relative error recent: " << (theoretical - average)/average << endl;
     
-    double theoretical_2_case = calculate_theory_2_case(alpha, sample_amount);
+    double theoretical_2_case = calculate_or_get_theoretical("2_case", 
+        [&]() { return calculate_theory_2_case(alpha, sample_amount); });
     cout << "Theoretical value 2 case: " << scientific << theoretical_2_case << endl;
     cout << "Relative error 2 case: " << (theoretical_2_case - average)/average << endl;
 
-    double theoretical_3_case = calculate_theory_3_case(alpha, sample_amount);
+    double theoretical_3_case = calculate_or_get_theoretical("3_case", 
+        [&]() { return calculate_theory_3_case(alpha, sample_amount); });
     cout << "Theoretical value 3 case: " << scientific << theoretical_3_case << endl;
     cout << "Relative error 3 case: " << (theoretical_3_case - average)/average << endl;
 
-    double theoretical_perfect_deepseek = calculate_theory_perfect_deepseek(alpha, sample_amount);
+    double theoretical_perfect_deepseek = calculate_or_get_theoretical("perfect_deepseek", 
+        [&]() { return calculate_theory_perfect_deepseek(alpha, sample_amount); });
     cout << "Theoretical value perfect deepseek: " << scientific << theoretical_perfect_deepseek << endl;
     cout << "Relative error perfect deepseek: " << (theoretical_perfect_deepseek - average)/average << endl;
 
-    double theoretical_3_case_confident = calculate_theory_3_case_confident(alpha, sample_amount);
+    double theoretical_3_case_confident = calculate_or_get_theoretical("3_case_confident", 
+        [&]() { return calculate_theory_3_case_confident(alpha, sample_amount); });
     cout << "Theoretical value 3 case confident: " << scientific << theoretical_3_case_confident << endl;
     cout << "Relative error 3 case confident: " << (theoretical_3_case_confident - average)/average << endl;
+
+    // 結果表示時は最大精度で
+    cout << scientific << setprecision(numeric_limits<double>::max_digits10);
 
     return 0;
 }
