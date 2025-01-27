@@ -311,12 +311,65 @@ double calculate_theory_3_case_confident(
     return 2*theory;
 }
 
+
+double calculate_theory_3_case_confident_15(
+    double alpha,     // パラメータα
+    
+    const int n  // データy（サイズn）
+) {
+    double mu = alpha / (alpha - 1.0);
+    double c = abs(tgamma(1 - alpha)) * pow(1.0, alpha);
+    double theory = 0.0;
+
+    // 事前計算: Γ関数を含む係数
+    const double gamma_2ma = tgamma(2 - alpha);
+    const double gamma_4ma = tgamma(4 - alpha);
+    const double gamma_3ma = tgamma(3 - alpha);
+
+    for (int i = 1; i < n+1; ++i) {
+        // 進捗率を0.1%ごとに表示
+        if (i % (n/1000) == 0) {
+            cout << "\rProgress: " << fixed << setprecision(1) << (i * 100.0 / n) << "%" << flush;
+        }
+
+        for (int j = 1; j < i; ++j) {  // j < i の範囲のみ計算
+            const double delta = i - j;  // Δ = i-j
+
+            // 各項の計算
+            const double term1 = j*delta /(mu*mu);
+            double term2 = 0.0;
+            double term3 = 0.0;
+            double term4 = 0.0;
+            if (j > 15.0*delta) {
+                term2 = (c / (2 * pow(mu, 3))) * (pow(j, 1 - alpha) * delta * delta) / gamma_2ma;
+                term3 = -(c * pow(delta, 3 - alpha)) / (pow(mu, 3) * gamma_4ma);
+                term4 = (c / pow(mu, 3)) * (pow(j, 2 - alpha) * delta) / gamma_3ma;
+            } else if (delta > 15.0*j) {
+                term2 = (c / (2 * pow(mu, 3))) * (pow(delta, 1 - alpha) * j * j) / gamma_2ma;
+                term3 = -(c * pow(j, 3 - alpha)) / (pow(mu, 3) * gamma_4ma);
+                term4 = (c / pow(mu, 3)) * (pow(delta, 2 - alpha) * j) / gamma_3ma;
+            } else {
+                term2 = 0.0;
+                term3 = (c / pow(mu, 3)) * (pow(delta, 2 - alpha) * j) / gamma_3ma;
+                term4 = (c / pow(mu, 3)) * (pow(j, 2 - alpha) * delta) / gamma_3ma;
+            }
+
+
+            theory += term1 + term2 + term3 + term4;
+        }
+    }
+
+    cout << "\rProgress: 100.0%" << endl;
+    return 2*theory;
+}
+
+
 int main() {
     // 出力の精度を最大に設定
     cout << setprecision(numeric_limits<double>::max_digits10) << scientific;
 
     double tau_0 = 1.0;
-    int sample_amount = pow(10, 5);  // サンプル数を10^7に設定
+    int sample_amount = pow(10, 4);  // サンプル数を10^7に設定
     double T = sample_amount * tau_0;
     double alpha = 1.5;  // 固定のalpha値
 
@@ -384,6 +437,11 @@ int main() {
         [&]() { return calculate_theory_3_case_confident(alpha, sample_amount); });
     cout << "Theoretical value 3 case confident: " << scientific << theoretical_3_case_confident << endl;
     cout << "Relative error 3 case confident: " << (theoretical_3_case_confident - average)/average << endl;
+
+    double theoretical_3_case_confident_15 = calculate_or_get_theoretical("3_case_confident_15", 
+        [&]() { return calculate_theory_3_case_confident_15(alpha, sample_amount); });
+    cout << "Theoretical value 3 case confident 15: " << scientific << theoretical_3_case_confident_15 << endl;
+    cout << "Relative error 3 case confident 15: " << (theoretical_3_case_confident_15 - average)/average << endl;
 
     // 結果表示時は最大精度で
     cout << scientific << setprecision(numeric_limits<double>::max_digits10);
