@@ -126,7 +126,7 @@ def main():
         
         ax.loglog(l, F, marker=markers[color_index % len(markers)], linestyle='', 
                   label=f'Data_{os.path.basename(csv_file)}', color=colors[color_index % len(colors)])
-        mask_large = (l > 1e4) & (l < 3e5)
+        mask_large = (l > 2e4) & (l < 6e5)
         log_l = np.log(l[mask_large])
         log_F = np.log(F[mask_large])
         coefficients = np.polyfit(log_l, log_F, 1)
