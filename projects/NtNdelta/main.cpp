@@ -404,6 +404,46 @@ double calculate_theory_1_case(
 }
 
 
+double calculate_theory_from_origin(
+    double alpha,     // パラメータα
+    
+    const int n  // データy（サイズn）
+) {
+    double mu = alpha / (alpha - 1.0);
+    double c = abs(tgamma(1 - alpha)) * pow(1.0, alpha);
+    double gamma_4ma = tgamma(4 - alpha);
+    double theory = 0.0;
+
+    // 事前計算: Γ関数を含む係数
+
+    for (int i = 1; i < n+1; ++i) {
+        // 進捗率を0.1%ごとに表示
+        if (i % (n/1000) == 0) {
+            cout << "\rProgress: " << fixed << setprecision(1) << (i * 100.0 / n) << "%" << flush;
+        }
+
+        for (int j = 1; j < i; ++j) {  // j < i の範囲のみ計算
+            const double delta = i - j;  // Δ = i-j
+
+            // 各項の計算
+            const double term1 = j*delta /(mu*mu);
+            double term2 = 0.0;
+            double term3 = 0.0;
+            double term4 = 0.0;
+            
+            term2 = 0.0;
+            term3 = -(c * ((pow(delta, 3.0 - alpha)) + pow(j, 3.0 - alpha) - (pow(delta + j, 3.0 - alpha)))) / (pow(mu, 3) * gamma_4ma); 
+            term4 = 0.0;
+        
+
+            theory += term1 + term2 + term3 + term4;
+        }
+    }
+
+    cout << "\rProgress: 100.0%" << endl;
+    return 2*theory;
+}
+
 
 int main() {
     // 出力の精度を最大に設定
@@ -488,6 +528,11 @@ int main() {
         [&]() { return calculate_theory_1_case(alpha, sample_amount); });
     cout << "Theoretical value 1 case: " << scientific << theoretical_1_case << endl;
     cout << "Relative error 1 case: " << (theoretical_1_case - average)/average << endl;
+
+    double theoretical_from_origin = calculate_or_get_theoretical("from_origin", 
+        [&]() { return calculate_theory_from_origin(alpha, sample_amount); });
+    cout << "Theoretical value from origin: " << scientific << theoretical_from_origin << endl;
+    cout << "Relative error from origin: " << (theoretical_from_origin - average)/average << endl;
 
     // 結果表示時は最大精度で
     cout << scientific << setprecision(numeric_limits<double>::max_digits10);
