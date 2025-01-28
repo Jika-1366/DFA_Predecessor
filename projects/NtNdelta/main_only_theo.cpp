@@ -450,7 +450,7 @@ int main() {
     cout << setprecision(numeric_limits<double>::max_digits10) << scientific;
 
     double tau_0 = 1.0;
-    int sample_amount = pow(10, 4);  // サンプル数を10^7に設定
+    int sample_amount = pow(10, 5);  // サンプル数を10^7に設定
     double T = sample_amount * tau_0;
     double alpha = 1.5;  // 固定のalpha値
 
@@ -458,24 +458,7 @@ int main() {
 
     double total_sum = 0.0;
     int repeat_amount = 10000;
-    // 100回の繰り返し
-    for (int iter = 0; iter < repeat_amount; ++iter) {
-        // イベント時刻をシミュレーション
-        auto times = simulate_event_times(tau_0, alpha, T);
-        
-        // 単位時間あたりのイベント数をカウント
-        auto counts = count_events_per_unit_time(times, sample_amount);
-        
-        // 二重和を計算
-        double double_sum = calculate_double_sum(counts);
-        
-        total_sum += double_sum;
-        
-        cout << "Iteration " << iter + 1 << " completed. Double sum: " << double_sum << endl;
-    }
-
-    double average = total_sum / repeat_amount;
-    cout << "All calculations completed. Average double sum: " << average << endl;
+    
 
     // 理論値の計算と保存/再利用
     auto calculate_or_get_theoretical = [&](const string& method_name, auto calculation_func) {
@@ -487,6 +470,8 @@ int main() {
         theoretical_manager.setValue(alpha, sample_amount, method_name, value);
         return value;
     };
+
+    double average = pow(10, 9);
 
     // 各理論値の計算または取得
     double theoretical_simple = calculate_or_get_theoretical("simple", 

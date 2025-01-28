@@ -32,7 +32,7 @@ double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
 // simulate_event_times関数をほぼ真似た形。だが、連続関数を想定した、event_timesというのは必要ないので削除
     long double t = 0.0;   //前回のexceeded_wating_timeを使う。最初は0のはず
     double exceeded_waiting_time = 0.0; // 初期化
-    double T100 = T*100;
+    double T100 = T*10000;
     
     while (t < T100) {
         double waiting_time = waiting_time_power_law(tau_0, alpha);
