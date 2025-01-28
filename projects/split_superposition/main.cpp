@@ -36,7 +36,7 @@ int main() {
     int t_first_l = 2e4;
     int t_last_l = 6e5;
 
-    double T = sample_amount * tau_0;  // 十分な時間範囲
+    double T = sample_amount;  // 十分な時間範囲
 
     // 出力ディレクトリの設定
     string output_dir = "intervals_alphas/";
