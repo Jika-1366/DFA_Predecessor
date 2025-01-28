@@ -74,7 +74,7 @@ int main() {
     
     // DFAパラメータ
     const int t_first_l = 16;        // DFA解析の最小スケール
-    const int t_last_l = pow(10, 7);       // DFA解析の最大スケール
+    const int t_last_l = pow(10, 6);       // DFA解析の最大スケール
 
     // 複数のイベント時刻列を生成
     vector<vector<double>> all_times;

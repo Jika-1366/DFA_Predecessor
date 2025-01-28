@@ -19,24 +19,42 @@
 #include <ctime>
 #include <iomanip>
 
-
 using namespace std;
 
-double waiting_time_power_law(double tau_0, double alpha, std::mt19937& gen) {
-    static std::uniform_real_distribution<> dis(0.0, 1.0);
-    double u = dis(gen);
-    return tau_0 * std::pow(u, -1.0 / alpha);
+namespace {
+    // プログラム開始時に一度だけ実行される初期化
+    struct RandomInitializer {
+        RandomInitializer() {
+            srand((unsigned int)time(NULL));
+        }
+    } random_initializer;
+}
+
+double waiting_time_power_law(double tau_0, double alpha) {
+    double u = ((double) rand())/((double) RAND_MAX);
+    if (u < 1e-300) {
+        u = ((double) rand())/(((double) RAND_MAX)*((double) RAND_MAX));
+        if (u < 1e-300) {
+            u = ((double) rand())/(((double) RAND_MAX)*((double) RAND_MAX)*((double) RAND_MAX));
+            if (u < 1e-300) {
+                u = ((double) rand())/(((double) RAND_MAX)*((double) RAND_MAX)*((double) RAND_MAX)*((double) RAND_MAX));
+            }
+        }
+    }
+    double waiting_time = tau_0 * std::pow(u, -1.0 / alpha);
+    if (std::isinf(waiting_time)) {
+        std::cout << "Warning: Infinite waiting time detected. detailed u value: " << std::setprecision(16) << u << std::endl;
+    }
+    return waiting_time;
 }
 
 double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
     long double t = 0.0;   //前回のexceeded_wating_timeを使う。最初は0のはず
     double exceeded_waiting_time = 0.0; // 初期化
     double T100 = T*100;
     
-    while (true) {
-        double waiting_time = waiting_time_power_law(tau_0, alpha, gen);
+    while (t < T100) {
+        double waiting_time = waiting_time_power_law(tau_0, alpha);
         t += waiting_time;
         if (t >= T100) {
             exceeded_waiting_time = t - T100;
@@ -45,7 +63,7 @@ double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
     }
     time_t now = time(0);
     tm* localtm = localtime(&now);
-    cout << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << T100<< "回 系をEvolve the system over time。空回し (alpha=" << alpha << ")" << endl;
+    cout << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << T100 << "回 系をEvolve the system over time。空回し (alpha=" << alpha << ")" << endl;
         
     return exceeded_waiting_time;
 }
@@ -59,12 +77,12 @@ std::vector<double> simulate_event_times(double tau_0, double alpha, double T) {
     std::mt19937 gen(rd());
 
     //まず系を空で回す
-    get_exceeded_waiting_time(alpha, tau_0, T);
+    double exceeded_waiting_time = get_exceeded_waiting_time(alpha, tau_0, T);
     std::vector<double> event_times;
-    double t = 0.0;
+    double t = exceeded_waiting_time;
 
     while (t < T) {
-        double waiting_time = waiting_time_power_law(tau_0, alpha, gen);
+        double waiting_time = waiting_time_power_law(tau_0, alpha);
         t += waiting_time;
         if (t >= T) break; // シミュレーション時間を超えたら終了
         event_times.push_back(t);
@@ -285,7 +303,7 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa_F2(vector<
     vector<int> l_values;
     vector<double> F2_values;
     for (const auto& record : records_l_F2) {
-        if (record.first >= pow(10,5)){
+        if (record.first >= pow(10,4)){
             l_values.push_back(record.first);
             F2_values.push_back(record.second);
         }

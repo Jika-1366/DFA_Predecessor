@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <tuple>
 #include <stdexcept>
+#include <stdint.h>
 
 #include <random>
 #include <vector>
@@ -23,9 +24,50 @@
 
 using namespace std;
 
+// 以下はシードを固定した乱数生成器です。なぜこんな面倒なことをしているかというと、一様分布でu=0になる確率を限りなく0に近づけるためです。
+class Xorshift128 {
+public:
+    Xorshift128(uint64_t seed) {
+        seed_ = seed;
+        // 0 でない初期値にする
+        if (seed_ == 0) seed_ = 123456789;
+        x_ = seed_;
+        y_ = 362436069;
+        z_ = 521288629;
+        w_ = 88675123;
+    }
+
+    uint64_t next() {
+        uint64_t t = x_ ^ (x_ << 11);
+        x_ = y_; y_ = z_; z_ = w_;
+        w_ = (w_ ^ (w_ >> 19)) ^ (t ^ (t >> 8));
+        return w_;
+    }
+
+    double nextDouble() { // [0, 1) の double を生成
+        return static_cast<double>(next() & 0xFFFFFFFFFFFFF) / 0x10000000000000; // 52bit 精度
+    }
+
+private:
+    uint64_t seed_;
+    uint64_t x_, y_, z_, w_;
+};
+
+namespace {
+    // プログラム開始時に一度だけ初期化される乱数生成器
+    Xorshift128& getRNG() {
+        static Xorshift128 rng(static_cast<uint64_t>(time(NULL)));
+        return rng;
+    }
+}
+
 double waiting_time_power_law(double tau_0, double alpha) {
-    double u = ((double) rand())/((double) RAND_MAX);
-    return tau_0 * std::pow(u, -1.0 / alpha);
+    double u = getRNG().nextDouble();
+    double waiting_time = tau_0 * std::pow(u, -1.0 / alpha);
+    if (std::isinf(waiting_time)) {
+        std::cout << "Warning: Infinite waiting time detected. detailed u value: " << std::setprecision(16) << u << std::endl;
+    }
+    return waiting_time;
 }
 
 double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
@@ -34,8 +76,11 @@ double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
     double exceeded_waiting_time = 0.0; // 初期化
     double T100 = T*100;
     
-    while (t < T100) {
+    while (true) {
         double waiting_time = waiting_time_power_law(tau_0, alpha);
+        if (std::isinf(waiting_time)) {
+            std::cout << "Warning: Infinite waiting time detected.current t:" << t << std::endl;
+        }
         t += waiting_time;
         if (t >= T100) {
             exceeded_waiting_time = t - T100;
@@ -44,8 +89,9 @@ double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
     }
     time_t now = time(0);
     tm* localtm = localtime(&now);
-    cout << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << T100<< "回 系をEvolve the system over time。空回し (alpha=" << alpha << ")" << endl;
-        
+    cout << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << T100 << "回 系をEvolve the system over time。空回し (alpha=" << alpha << ")" << endl;
+    
+
     return exceeded_waiting_time;
 }
 
@@ -58,12 +104,13 @@ std::vector<double> simulate_event_times(double tau_0, double alpha, double T) {
     double exceeded_waiting_time = get_exceeded_waiting_time(alpha, tau_0, T);
     std::vector<double> event_times;
     double t = exceeded_waiting_time;  // 空回しで超過した時間から開始
-
-    while (t < T) {
-        double waiting_time = waiting_time_power_law(tau_0, alpha);
-        t += waiting_time;
+    cout << "空回しの結果: NOTHING HAPPENING TIME: " << exceeded_waiting_time << endl;
+    while (true) {
         if (t >= T) break; // シミュレーション時間を超えたら終了
         event_times.push_back(t);
+        double waiting_time = waiting_time_power_law(tau_0, alpha);
+        t += waiting_time;
+
     }
 
     return event_times;
@@ -202,6 +249,20 @@ vector<vector<unsigned int>> generate_segments(const vector<unsigned int>& data,
 
 std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<unsigned int> RW_list, double alpha, int t_first_l, int t_last_l) {
     cout << "dfa関数開始" << endl;
+    // RW_listの最後が0の場合、すべて0のベクトルなのでreturn
+    if (RW_list.back() == 0) {
+        // 空のベクトルを作成
+        vector<int> l_values_all;
+        vector<double> F2_values_all;
+        
+        // t_first_lからt_last_lまでの値を追加
+        for (int l = t_first_l; l < t_last_l; l++) {
+            l_values_all.push_back(l);
+            F2_values_all.push_back(0.0);
+        }
+
+        return std::make_tuple(0.0, 0.0, l_values_all, F2_values_all);
+    }
     // alphaを少数第1位で表示するために、snprintfを使用します。
     char buffer[20];
     snprintf(buffer, sizeof(buffer), "%.1f", alpha);
@@ -284,7 +345,7 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<uns
     vector<int> l_values;
     vector<double> F_values;
     for (const auto& record : records_l_F) {
-        if (record.first >= pow(10,5)){
+        if (record.first >= pow(10,4)){
             l_values.push_back(record.first);
             F_values.push_back(record.second);
         }

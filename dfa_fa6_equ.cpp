@@ -82,6 +82,19 @@ int main(int argc, char* argv[]) {
             
 
             std::vector<unsigned int> walk = generate_power_law_point_process(alpha, tau_0, sample_amount);
+            // 最初の10個のwalkを表示
+            cout << "最初の10個のwalk:" << endl;
+            for (int j = 0; j < min(10, (int)walk.size()); j++) {
+                cout << walk[j] << " ";
+            }
+            cout << endl;
+
+            // 最後の10個のwalkを表示
+            cout << "最後の10個のwalk:" << endl;
+            for (int j = max(0, (int)walk.size()-10); j < walk.size(); j++) {
+                cout << walk[j] << " ";
+            }
+            cout << endl;
             std::tuple<double, double, std::vector<int>, std::vector<double>> result = dfa(walk, alpha, t_first_l, t_last_l);
             double slope = std::get<0>(result);
             double intercept = std::get<1>(result);
@@ -93,7 +106,7 @@ int main(int argc, char* argv[]) {
                 intercepts.push_back(intercept);
                 all_F_values.push_back(current_F_values);
                 
-                if (i == 0) {  // 最初のイテレーションでl_valuesを保存
+                if (l_values.empty() && !current_l_values.empty() && std::any_of(current_l_values.begin(), current_l_values.end(), [](int x) { return x != 0; })) {
                     l_values = current_l_values;
                 }
 
