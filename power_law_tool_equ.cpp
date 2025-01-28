@@ -32,7 +32,7 @@ double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
 // simulate_event_times関数をほぼ真似た形。だが、連続関数を想定した、event_timesというのは必要ないので削除
     long double t = 0.0;   //前回のexceeded_wating_timeを使う。最初は0のはず
     double exceeded_waiting_time = 0.0; // 初期化
-    double T100 = T*10000;
+    double T100 = T*100;
     
     while (t < T100) {
         double waiting_time = waiting_time_power_law(tau_0, alpha);
@@ -54,11 +54,10 @@ double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
 
 // イベント時刻をシミュレーションする関数
 std::vector<double> simulate_event_times(double tau_0, double alpha, double T) {
-
     //まず系を空で回す
-    get_exceeded_waiting_time(alpha, tau_0, T);
+    double exceeded_waiting_time = get_exceeded_waiting_time(alpha, tau_0, T);
     std::vector<double> event_times;
-    double t = 0.0;
+    double t = exceeded_waiting_time;  // 空回しで超過した時間から開始
 
     while (t < T) {
         double waiting_time = waiting_time_power_law(tau_0, alpha);
