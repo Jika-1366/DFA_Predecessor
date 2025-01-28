@@ -18,10 +18,10 @@ int main(int argc, char* argv[]) {
     string intercept_output_file = "alpha_intercept.csv";
     string detailed_intercept_output_file = "alpha_all_intercepts.csv";
     double tau_0 = 1.0;
-    int sample_amount = pow(10,6);
+    int sample_amount = pow(10,8);
     int number_i = 20;
     int t_first_l = 16;
-    int t_last_l = 100000;
+    int t_last_l = 7*pow(10, 5);
     
     // コマンドライン引数の解析
     for (int i = 1; i < argc; i += 2) {
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     ofstream intercept_output(intercept_output_file);
     ofstream detailed_intercept_output(detailed_intercept_output_file);
 
-    for (double alpha = 1.1 ; alpha <= 2.8; alpha += 0.4) {
+    for (double alpha = 1.1 ; alpha <= 1.9; alpha += 0.1) {
         vector<double> slopes;
         vector<double> intercepts;
         vector<vector<double>> all_F_values;
