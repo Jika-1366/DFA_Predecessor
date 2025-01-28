@@ -21,13 +21,13 @@ int main() {
     // シミュレーションパラメータ
     const double tau_0 = 1.0;
     const double alpha = 1.5;  // パワーロー分布のスケーリング指数
-    const int sample_amount = pow(10, 6);  // サンプル数
+    const int sample_amount = pow(10, 7);  // サンプル数
     const double T = sample_amount * tau_0;  // 時間範囲
     const int num_sequences = 100;  // 重ね合わせる数
     
     // DFAパラメータ
     const int t_first_l = 16;        // DFA解析の最小スケール
-    const int t_last_l = pow(10, 5);       // DFA解析の最大スケール
+    const int t_last_l = pow(10, 6);       // DFA解析の最大スケール
 
     // 累積カウントを保持するベクター
     vector<unsigned int> total_counts(sample_amount, 0);

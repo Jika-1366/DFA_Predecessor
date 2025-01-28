@@ -1,3 +1,6 @@
+#ifndef POWER_LAW_UTIL_HPP
+#define POWER_LAW_UTIL_HPP
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -7,36 +10,65 @@
 #include <cstdlib>
 #include <tuple>
 #include <stdexcept>
-
 #include <random>
 #include <vector>
 #include <cmath>
-#include <queue> // 追加: queueを使うために必要
-#include <tuple> 
-
+#include <queue>
+#include <tuple>
 #include <numeric>
-#include <vector>
 #include <ctime>
 #include <iomanip>
-
+#include <stdint.h>
 
 using namespace std;
 
-double waiting_time_power_law(double tau_0, double alpha, std::mt19937& gen) {
-    static std::uniform_real_distribution<> dis(0.0, 1.0);
-    double u = dis(gen);
-    return tau_0 * std::pow(u, -1.0 / alpha);
+// 高性能な乱数生成器Xorshift128の実装
+class Xorshift128 {
+public:
+    Xorshift128(uint64_t seed) {
+        seed_ = seed;
+        if (seed_ == 0) seed_ = 123456789;
+        x_ = seed_;
+        y_ = 362436069;
+        z_ = 521288629;
+        w_ = 88675123;
+    }
+
+    double nextDouble() {
+        uint64_t t = x_ ^ (x_ << 11);
+        x_ = y_; y_ = z_; z_ = w_;
+        w_ = (w_ ^ (w_ >> 19)) ^ (t ^ (t >> 8));
+        return static_cast<double>(w_ & 0xFFFFFFFFFFFFF) / 0x10000000000000;
+    }
+
+private:
+    uint64_t seed_, x_, y_, z_, w_;
+};
+
+namespace {
+    // プログラム開始時に一度だけ初期化される乱数生成器
+    Xorshift128& getRNG() {
+        static Xorshift128 rng(static_cast<uint64_t>(time(NULL)));
+        return rng;
+    }
+}
+
+double waiting_time_power_law(double tau_0, double alpha) {
+    double u = getRNG().nextDouble();
+    double waiting_time = tau_0 * std::pow(u, -1.0 / alpha);
+    if (std::isinf(waiting_time)) {
+        std::cout << "Warning: Infinite waiting time detected. detailed u value: " << std::setprecision(16) << u << std::endl;
+    }
+    return waiting_time;
 }
 
 double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
     long double t = 0.0;   //前回のexceeded_wating_timeを使う。最初は0のはず
     double exceeded_waiting_time = 0.0; // 初期化
     double T100 = T*100;
     
-    while (true) {
-        double waiting_time = waiting_time_power_law(tau_0, alpha, gen);
+    while (t < T100) {
+        double waiting_time = waiting_time_power_law(tau_0, alpha);
         t += waiting_time;
         if (t >= T100) {
             exceeded_waiting_time = t - T100;
@@ -45,26 +77,20 @@ double get_exceeded_waiting_time(double alpha, double tau_0, double T) {
     }
     time_t now = time(0);
     tm* localtm = localtime(&now);
-    cout << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << T100<< "回 系をEvolve the system over time。空回し (alpha=" << alpha << ")" << endl;
+    cout << put_time(localtm, "%Y-%m-%d %H:%M:%S: ") << T100 << "回 系をEvolve the system over time。空回し (alpha=" << alpha << ")" << endl;
         
     return exceeded_waiting_time;
 }
 
-
-
-
 // イベント時刻をシミュレーションする関数
 std::vector<double> simulate_event_times(double tau_0, double alpha, double T) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-
     //まず系を空で回す
-    get_exceeded_waiting_time(alpha, tau_0, T);
+    double exceeded_waiting_time = get_exceeded_waiting_time(alpha, tau_0, T);
     std::vector<double> event_times;
-    double t = 0.0;
+    double t = exceeded_waiting_time;
 
     while (t < T) {
-        double waiting_time = waiting_time_power_law(tau_0, alpha, gen);
+        double waiting_time = waiting_time_power_law(tau_0, alpha);
         t += waiting_time;
         if (t >= T) break; // シミュレーション時間を超えたら終了
         event_times.push_back(t);
@@ -95,9 +121,6 @@ std::vector<unsigned int> count_events_per_unit_time(const std::vector<double>& 
     return event_counts;
 }
 
-
-
-
 // 更新過程をシミュレーションし、各時刻でのイベント数を返す関数
 std::vector<unsigned int> generate_power_law_point_process(double alpha, double tau_0, int sample_amount) {
     // イベント時刻のシミュレーション
@@ -109,22 +132,16 @@ std::vector<unsigned int> generate_power_law_point_process(double alpha, double 
     return event_counts;
 }
 
-
-
-
-
 double get_directly_residuls2(const std::vector<unsigned int>& y) {
     int n = y.size();
     if (n == 0) {
         return 0.0; // または適切なエラー処理
     }
 
-    //double mean = std::reduce(std::execution::par, y.begin(), y.end(), 0.0) / y.size();
     long double sum = 0.0;
     long double sq_sum = 0.0L;
     long double weighted_sum = 0.0L;
    
-
     for (size_t i = 0; i < y.size(); ++i) {
         long double value = y[i];
         sum += value;
@@ -138,8 +155,6 @@ double get_directly_residuls2(const std::vector<unsigned int>& y) {
 
     return v2_y - second_term;
 }
-
-
 
 // 傾き、切片、残差の二乗の合計を返す。yは必須だが、xは渡しても渡さなくともいい。
 std::tuple<double, double, double> find_best_fit(const std::vector<double>& y, const std::vector<double>& x = std::vector<double>()) {
@@ -156,7 +171,6 @@ std::tuple<double, double, double> find_best_fit(const std::vector<double>& y, c
         throw std::invalid_argument("x and y must have the same size");
     } else {
         x_values = x;  // 既存のxをコピー
-        //cout << "コピーしました" << endl;
     }
 
     // 平均を計算
@@ -199,8 +213,6 @@ vector<vector<unsigned int>> generate_segments(const vector<unsigned int>& data,
     return segments;
 }
 
-
-
 std::tuple<double, double, std::vector<int>, std::vector<double>> dfa_F2(vector<unsigned int> RW_list, double alpha, int t_first_l, int t_last_l) {
     cout << "dfa関数開始" << endl;
     // alphaを少数第1位で表示するために、snprintfを使用します。
@@ -208,7 +220,6 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa_F2(vector<
     snprintf(buffer, sizeof(buffer), "%.1f", alpha);
     string base_name = buffer;
     
-    //string input_path = base_name + ".csv";
     string output_path = "F2/" + base_name + ".csv";
     int first_l = t_first_l;
     int last_l = t_last_l;
@@ -230,7 +241,7 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa_F2(vector<
         int num_segments = N / l;
         int N_used = num_segments * l; // Number of data to use
         vector<vector<unsigned int>> segments = generate_segments(RW_list, l);
-        ///////////////////////////////////////////////assert statement
+
         // Calculate the total number of elements in segments
         int total_elements = 0;
         for (const vector<unsigned int>& segment : segments) {
@@ -247,7 +258,6 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa_F2(vector<
                 vector<double>()                           // empty F_values
             );
         }
-        /////////////////////////////////////////////////////
 
         double sum_variance = 0.0;
         for (vector<unsigned int>& segment : segments) {
@@ -285,7 +295,7 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa_F2(vector<
     vector<int> l_values;
     vector<double> F2_values;
     for (const auto& record : records_l_F2) {
-        if (record.first >= pow(10,5)){
+        if (record.first >= pow(10,4)){
             l_values.push_back(record.first);
             F2_values.push_back(record.second);
         }
@@ -309,3 +319,5 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa_F2(vector<
     std::cout << "========================================" << std::endl;
     return std::make_tuple(slope, intercept, l_values_all, F2_values_all);
 }
+
+#endif

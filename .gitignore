@@ -6,13 +6,15 @@
 
 */*.png
 
+*/*.log
 
+*.log
 *.exe
 
 # 例外的に許可するCSVファイル
 !projects/NtNdelta/theoretical_values.csv
 
-
+*/*.txt
 *.txt
 
 # Ignore files without extension
