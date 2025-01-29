@@ -76,6 +76,8 @@ int main() {
                 // DFA解析を実行して結果を返す
                 auto [slope, intercept, l_vals, F_vals] = dfa_F2(counts, alpha1, t_first_l, t_last_l);
 
+                // F値を保存
+                F_values_trials.push_back(F_vals);
 
                 //l_valuesが定義されていなくて、返ってきたcurrent_l_valuesが0でない場合は、l_valuesをcurrent_l_valuesにする。これを使う。
                 if (l_values.empty() && !l_vals.empty() && std::any_of(l_vals.begin(), l_vals.end(), [](int x) { return x != 0; })) {
