@@ -37,7 +37,7 @@ int main() {
     //int t_last_l = 6e5;
     int sample_amount = pow(10, 7);  // サンプル数を調整可能
     int t_first_l = 1e4;
-    int t_last_l = 1e5;
+    int t_last_l = 3e5;
     
     int number_i = 10;
 
