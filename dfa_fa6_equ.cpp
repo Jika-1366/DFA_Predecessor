@@ -106,6 +106,7 @@ int main(int argc, char* argv[]) {
                 intercepts.push_back(intercept);
                 all_F_values.push_back(current_F_values);
                 
+                //l_valuesが定義されていなくて、返ってきたcurrent_l_valuesが0でない場合は、l_valuesをcurrent_l_valuesにする。これを使う。
                 if (l_values.empty() && !current_l_values.empty() && std::any_of(current_l_values.begin(), current_l_values.end(), [](int x) { return x != 0; })) {
                     l_values = current_l_values;
                 }
@@ -153,7 +154,6 @@ int main(int argc, char* argv[]) {
                 avg_F_values_output << l_values[j] << "," << setprecision(15) << avg_F_values[j] << endl;
             }
         }
-
     }
 
     output.close();

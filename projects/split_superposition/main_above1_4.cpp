@@ -32,9 +32,13 @@ vector<double> calculate_intervals(const vector<double>& times) {
 
 int main() {
     double tau_0 = 1.0;
-    int sample_amount = pow(10, 8);  // サンプル数を調整可能
-    int t_first_l = 2e4;
-    int t_last_l = 6e5;
+    //int sample_amount = pow(10, 8);  // サンプル数を調整可能
+    //int t_first_l = 2e4;
+    //int t_last_l = 6e5;
+    int sample_amount = pow(10, 7);  // サンプル数を調整可能
+    int t_first_l = 1e4;
+    int t_last_l = 1e5;
+    
     int number_i = 10;
 
     double T = sample_amount * tau_0;  // 十分な時間範囲
@@ -72,11 +76,11 @@ int main() {
                 // DFA解析を実行して結果を返す
                 auto [slope, intercept, l_vals, F_vals] = dfa_F2(counts, alpha1, t_first_l, t_last_l);
 
-                // 最初の試行でl_valuesを保存
-                if (trial == 0) {
+
+                //l_valuesが定義されていなくて、返ってきたcurrent_l_valuesが0でない場合は、l_valuesをcurrent_l_valuesにする。これを使う。
+                if (l_values.empty() && !l_vals.empty() && std::any_of(l_vals.begin(), l_vals.end(), [](int x) { return x != 0; })) {
                     l_values.assign(l_vals.begin(), l_vals.end());
                 }
-                F_values_trials.push_back(F_vals);
             }
 
             // F値の平均を計算
