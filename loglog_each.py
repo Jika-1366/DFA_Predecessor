@@ -6,8 +6,7 @@ import os
 import re
 
 from formulas.second_term import calculate_second_coffi
-from formulas.calculate_intercept import calculate_intercept, calculate_second_intercept
-
+from formulas.calculate_intercept_0129 import calculate_intercept
 from graph_alpha_slope_all import prepare_slope_data
 from graph_alpha_intercept_all import prepare_intercept_data
 
@@ -27,10 +26,10 @@ def calculate_F_calc_detailed(l, alpha):
     sqrt_log_main_coffi = calculate_intercept(alpha)
     sqrt_main_coffi =  np.exp(sqrt_log_main_coffi)
     main_coffi = sqrt_main_coffi**2.0
-    second_coffi = calculate_second_intercept(alpha=alpha)
-    F2= (main_coffi*l**((3-alpha)) + (second_coffi)*l)
-    F = np.sqrt(F2)
-    return F
+    #second_coffi = calculate_second_intercept(alpha=alpha)
+    #F2= (main_coffi*l**((3-alpha)) + (second_coffi)*l)
+    #F = np.sqrt(F2)
+    #return F
 
 
 def calcualte_F_calc_alpha_above2(l, alpha):
@@ -181,7 +180,7 @@ def main():
             print(f"α = {alpha:.1f}, l = 100 のときの値:")
             print(f"  フィッティング線: F = {F_100:.4f}")
             print(f"  単純計算値: F = {F_calc_simple_100:.4f}")
-            print(f"  詳細計算値: F = {F_calc_complex_100:.4f}")
+            #print(f"  詳細計算値: F = {F_calc_complex_100:.4f}")
 
     if fig is not None:
         plt.savefig(f"{output_dir}/graph_alpha_{current_alpha:.1f}.png")

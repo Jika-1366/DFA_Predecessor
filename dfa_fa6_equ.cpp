@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     ofstream intercept_output(intercept_output_file);
     ofstream detailed_intercept_output(detailed_intercept_output_file);
 
-    for (double alpha = 1.1 ; alpha <= 1.9; alpha += 0.1) {
+    for (double alpha = 1.7 ; alpha <= 1.9; alpha += 0.1) {
         vector<double> slopes;
         vector<double> intercepts;
         vector<vector<double>> all_F_values;
