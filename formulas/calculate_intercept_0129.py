@@ -6,7 +6,7 @@ def cova1(c, alpha, mu):
     Calculates the value based on the first expression.
 
     Expression:
-    (c * (-3 + alpha)) / (4 * (-7 + alpha) * (mu**3) * scipy.special.gamma(6 - alpha))
+    -2c / ((-4 + alpha) * (mu**3) * scipy.special.gamma(4 - alpha))
 
     Args:
         c (float): Value of c.

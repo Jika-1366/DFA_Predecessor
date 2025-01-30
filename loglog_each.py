@@ -103,6 +103,10 @@ def main():
                 plt.close(fig)
             
             fig, ax = plt.subplots(figsize=(10, 6))
+            # 上と右の軸を追加し、副目盛りも表示
+            ax.tick_params(direction='in', which='both', top=True, right=True)
+            ax.tick_params(which='minor', top=True, right=True)  # 副目盛りを追加
+            
             current_alpha = alpha
             color_index = 0
         
@@ -124,7 +128,7 @@ def main():
             max_F_value = max(F)
         
         ax.loglog(l, F, marker=markers[color_index % len(markers)], linestyle='', 
-                  label=f'Data_{os.path.basename(csv_file)}', color=colors[color_index % len(colors)])
+                  label=f'$\\alpha = {alpha:.1f}$', color=colors[color_index % len(colors)])
         mask_large = (l > 2e4) & (l < 6e5)
         log_l = np.log(l[mask_large])
         log_F = np.log(F[mask_large])
@@ -134,7 +138,7 @@ def main():
         print(f"{csv_file}: slope={slope:.4f}, intercept={intercept:.4f}")
         fit_line = np.exp(intercept) * l ** slope
         ax.loglog(l, fit_line, linestyle='--', color='blue', 
-                  label=f'Fit: F = {np.exp(intercept):.4f} * l^{slope:.4f}')
+                  label=f'Fit: $F = {np.exp(intercept):.4f} \\cdot n^{{{slope:.4f}}}$')
         if 1 < alpha:
             F_dfa3, slope_dfa3, intercept_dfa3 = calculate_F_calced_dfa3(l, alpha)
             #ax.loglog(l, F_dfa3, linestyle='-', color='purple', linewidth=1.5,
@@ -144,7 +148,7 @@ def main():
         if 1 < alpha < 2:
             F_calc_simple = calculate_F_calc_simple(l, alpha)
             ax.loglog(l, F_calc_simple, linestyle='-', color='red', linewidth=1.5,
-                      label=f'Calc Simple: F = {np.sqrt(main_coffi):.3f}*l^({(3-alpha)/2:.3f})')
+                      label=f'Calc Simple: $F = {np.sqrt(main_coffi):.3f} \\cdot n^{{{(3-alpha)/2:.3f}}}$')
             F_calc_complex = calculate_F_calc_detailed(l, alpha)
             #ax.loglog(l, F_calc_complex, linestyle='-', color='green', linewidth=1.5,
                       #label=f'Calc Complex: F = {np.sqrt(main_coffi):.3f}l^({(3-alpha)/2}) + {np.sqrt(second_coffi):.3f}*l^(0.5)')
@@ -152,21 +156,20 @@ def main():
             alpha = 2.01
             F_calc_above2 = calcualte_F_calc_alpha_above2(l, alpha)
             ax.loglog(l, F_calc_above2, linestyle='-', color='red', linewidth=1.5,
-                      label=f'Calc (α > 2): F = {coffi_alpha_above2:.3f}*l^0.5')
+                      label=f'Calc ($\\alpha > 2$): $F = {coffi_alpha_above2:.3f} \\cdot n^{{0.5}}$')
 
         elif alpha > 2.02:
             F_calc_above2 = calcualte_F_calc_alpha_above2(l, alpha)
             ax.loglog(l, F_calc_above2, linestyle='-', color='red', linewidth=1.5,
-                      label=f'Calc (α > 2): F = {coffi_alpha_above2:.3f}*l^0.5')
+                      label=f'Calc ($\\alpha > 2$): $F = {coffi_alpha_above2:.3f} \\cdot n^{{0.5}}$')
 
         color_index += 1
 
-        ax.set_title(f"Log-log graph (α = {alpha:.1f})", fontsize=18)
-        ax.set_xlabel("l", fontsize=16)
-        ax.set_ylabel("F", fontsize=16)
-        ax.legend(fontsize=10)
+        ax.set_title(f"Log-log plot of $n$-$F$ ($\\alpha = {alpha:.1f}$)", fontsize=18)
+        ax.set_xlabel("$n$", fontsize=16)
+        ax.set_ylabel("$F$", fontsize=16)
+        ax.legend(fontsize=10, frameon=False)
         ax.set_xlim([min(l), max(l)])
-        ax.grid(True)
         
         # 縦軸の範囲を固定
         ax.set_ylim([0.1, max_F_value])
@@ -177,7 +180,7 @@ def main():
             F_calc_simple_100 = calculate_F_calc_simple(l_100, alpha)
             F_calc_complex_100 = calculate_F_calc_detailed(l_100, alpha)
             
-            print(f"α = {alpha:.1f}, l = 100 のときの値:")
+            print(f"$\\alpha$ = {alpha:.1f}, l = 100 のときの値:")
             print(f"  フィッティング線: F = {F_100:.4f}")
             print(f"  単純計算値: F = {F_calc_simple_100:.4f}")
             #print(f"  詳細計算値: F = {F_calc_complex_100:.4f}")

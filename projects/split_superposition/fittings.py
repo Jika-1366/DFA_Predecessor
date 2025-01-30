@@ -90,9 +90,9 @@ def fit_data(x_data: np.ndarray, y_data: np.ndarray,
     return FitResult(tuple(params), errors, r2)
 
 def grid_search_fit(x_data: np.ndarray, y_data: np.ndarray, 
-                   alpha_range: tuple[float, float] = (1.1, 1.98), 
-                   beta_range: tuple[float, float] = (1.1, 1.98), 
-                   step: float = 0.01) -> FitResult:
+                   alpha_range: tuple[float, float] = (1.35, 1.75), 
+                   beta_range: tuple[float, float] = (1.35, 1.75), 
+                   step: float = 0.0001) -> FitResult:
     """
     グリッドサーチによる最小二乗法フィッティング
     
@@ -132,5 +132,7 @@ def grid_search_fit(x_data: np.ndarray, y_data: np.ndarray,
     
     # グリッドサーチでは誤差の推定は行わない
     r2 = calculate_r_squared(y_data, best_y_pred)
+
+    #if r2 < 0.999:#この場合になんか処理ほしいね。
     
     return FitResult(best_params, None, r2) 

@@ -80,19 +80,40 @@ int main() {
     vector<vector<double>> all_times;
     all_times.reserve(num_sequences);
     
+    size_t total_elements = 0;
+    
     for (int i = 0; i < num_sequences; ++i) {
-        all_times.push_back(simulate_event_times(tau_0, alpha, T));
+        cout << "Processing sequence " << i << endl;
+        auto events = simulate_event_times(tau_0, alpha, T);
+        total_elements += events.size();
+        cout << "Sequence " << i << " size: " << events.size() 
+             << " elements, Total elements so far: " << total_elements 
+             << " (Theoretical memory: " << (total_elements * sizeof(double)) / (1024.0 * 1024.0) << " MB)" << endl;
+        
+        all_times.push_back(std::move(events));
     }
 
+    cout << "All sequences generated. Starting merge..." << endl;
     // すべての時刻列を結合してソート
     auto merged_times = merge_multiple_event_times(all_times);
+    cout << "Merge completed. Merged size: " << merged_times.size() 
+         << " elements (" << (merged_times.size() * sizeof(double)) / (1024.0 * 1024.0) << " MB)" << endl;
+    
+    // all_timesのメモリを即座に解放
+    all_times.clear();
+    all_times.shrink_to_fit();
+    cout << "Original sequences cleared." << endl;
     
     // インターバルをシャッフルして再構築
+    cout << "Starting shuffle..." << endl;
     auto shuffled_times = shuffle_intervals(merged_times);
+    cout << "Shuffle completed. Size: " << shuffled_times.size() 
+         << " elements (" << (shuffled_times.size() * sizeof(double)) / (1024.0 * 1024.0) << " MB)" << endl;
     
-    // メモリを解放
+    // merged_timesのメモリを即座に解放
     merged_times.clear();
     merged_times.shrink_to_fit();
+    cout << "Merged times cleared." << endl;
 
     // 累積カウントを計算（sample_amountまでの時間で固定）
     auto counts = count_events_per_unit_time(shuffled_times, sample_amount);
