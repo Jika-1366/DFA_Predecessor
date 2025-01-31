@@ -7,17 +7,21 @@ df = pd.read_csv('walk_data.csv', header=None, names=['value'])
 # インデックスを時間として使用
 time = df.index
 
+# 図とaxesオブジェクトを作成
+fig, ax = plt.subplots(figsize=(8, 8))
+
 # 散布図をプロット
-plt.figure(figsize=(6, 6))  # 横幅を狭くし、縦長の図にする
-plt.scatter(time, df['value'], alpha=0.5, s=1)
+ax.scatter(time, df['value'], alpha=0.5, s=1)
 
 # グラフの設定
-plt.title('renewal_walk', fontsize=19)  # タイトルのフォントサイズを大きくする
-plt.xlabel('time', fontsize=25)  # x軸ラベルのフォントサイズを大きくする
-plt.ylabel('count', fontsize=25)  # y軸ラベルのフォントサイズを大きくする
+ax.set_xlabel('time', fontsize=25)
+ax.set_ylabel('count', fontsize=25)
 
-# グリッドを表示
-plt.grid(True, linestyle='--', alpha=0.7)
+# 目盛りの設定
+ax.tick_params(direction='in', which='both', top=True, right=True, labelsize=20)
+ax.tick_params(which='minor', top=True, right=True)  # 副目盛りを追加
+
+# グリッド線を削除（デフォルトで非表示）
 
 # グラフを保存
 plt.savefig('walk_data_scatter.png', dpi=300, bbox_inches='tight')

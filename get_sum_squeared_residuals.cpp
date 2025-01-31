@@ -3,7 +3,7 @@
 #include <numeric>
 #include <cmath>
 #include <iomanip>
-#include "power_law_tool_7.hpp"
+#include "power_law_tool_equ.hpp"
 
 using namespace std;
 
@@ -14,8 +14,9 @@ double test_get_sum_squared_residuals(const vector<double>& y) {
     }
     cout << endl;
 
-    // get_sum_squared_residualsを呼び出し
-    double result = get_avg_squared_residuals(y);
+    // get_directly_residuls2を呼び出し
+    vector<unsigned int> y_uint(y.begin(), y.end());
+    double result = get_directly_residuls2(y_uint);
 
     cout << "結果: " << result << endl;
 
