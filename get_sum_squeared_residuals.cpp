@@ -62,12 +62,12 @@ void test_residual_calculations(const vector<double>& y) {
 
     // 結果の表示
     cout << fixed << setprecision(10);
-    cout << "カスタムの残差和: " << custom_residual_sum << endl;
+    cout << "Custom residual mean: " << custom_residual_sum / y.size() << endl;
 }
 
 int main() {
-    // 11個のテストデータの作成
-    vector<double> y = {1.0, 1.5, 1.9, 2.6, 3.0, 3.2, 3.8, 3.9, 4.2, 4.6, 5.0};
+    // 11個のテストデータの作成(更新過程なので、整数のみ)
+    vector<double> y = {1.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0, 5.0, 5.0};
 
     // 両方のテスト関数を同じデータで呼び出し
     test_get_sum_squared_residuals(y);

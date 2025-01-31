@@ -20,6 +20,7 @@
 #include <ctime>
 #include <iomanip>
 
+
 #include "power_law_tool_equ.hpp"
 
 using namespace std;
