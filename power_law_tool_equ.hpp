@@ -289,6 +289,9 @@ std::tuple<double, double, std::vector<int>, std::vector<double>> dfa(vector<uns
 
         int num_segments = N / l;
         int N_used = num_segments * l; // Number of data to use
+
+        //ここの処理は改善できます。今は全ての1本の時系列データをセグメントに分けて行列としてコピーしているのでRAMの消費量が2倍になっています。そうではなく、
+        //使うセグメントだけ逐一取り出す方法にすれば、RAMの消費量は多くとも1.1倍ぐらいで済むと思います。
         vector<vector<unsigned int>> segments = generate_segments(RW_list, l);
         ///////////////////////////////////////////////assert statement
         // Calculate the total number of elements in segments
